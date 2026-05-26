@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="./manifest.json">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <title>LiftLog</title>
 <style>
 :root{
@@ -96,11 +99,12 @@ button{cursor:pointer}
 .st-u{font-size:11px;color:var(--muted);font-weight:500;margin-left:3px}
 
 /* ── HOME ── */
-.hero{background:var(--black);padding:14px 14px 14px}
-.hero-greet{font-size:10px;color:rgba(255,255,255,.5);font-weight:500;margin-bottom:2px}
-.hero-title{font-size:20px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:0}
+.hero{background:var(--black);padding:24px 18px 20px}
+.hero-logo{font-size:13px;font-weight:800;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:.9}
+.hero-greet{font-size:13px;color:rgba(255,255,255,.45);font-weight:500;margin-bottom:4px;letter-spacing:.2px}
+.hero-title{font-size:32px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:18px;line-height:1.05}
 .hero-chips{display:flex;gap:8px}
-.hc{background:rgba(255,255,255,.09);border-radius:20px;padding:4px 11px;font-size:10px;color:rgba(255,255,255,.6);font-weight:600}
+.hc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:7px 14px;font-size:11px;color:rgba(255,255,255,.8);font-weight:700}
 .hbody{padding:14px}
 .pbanner{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);border-left:3px solid var(--green);margin-bottom:10px}
 .p-lbl{font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
@@ -555,14 +559,10 @@ button{cursor:pointer}
 <!-- ═══════ HOME ═══════ -->
 <div id="pgHome" class="page active">
   <div class="hero">
-    <!-- Option A: inline logo right, greeting left -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div style="display:flex;flex-direction:column;justify-content:center">
-        <div class="hero-greet" id="heroGreet">Good morning 💪</div>
-        <div class="hero-title">Ready to train?</div>
-      </div>
-      <img id="heroLogo" src="" alt="LiftLog" style="height:52px;width:auto;flex-shrink:0;display:block">
-    </div>
+    <img id="heroLogo" src="" alt="" style="display:none">
+    <div class="hero-logo">LiftLog</div>
+    <div class="hero-greet" id="heroGreet">Good morning 💪</div>
+    <div class="hero-title">Ready to train?</div>
     <div class="hero-chips">
       <div class="hc" id="streakChip">🔥 0 streak</div>
       <div class="hc" id="weekChip">📅 0 this week</div>
@@ -928,7 +928,54 @@ button{cursor:pointer}
   </div>
 </div>
 
-<script>// ═══════════════════════════════════════════════════
+<script>
+// ── FIREBASE CLOUD SAVE ──
+firebase.initializeApp({apiKey:"AIzaSyAB6ux2qMCxQ_0KdNDs72l3cdFdcVAkDr8",authDomain:"liftlogv2.firebaseapp.com",projectId:"liftlogv2",storageBucket:"liftlogv2.firebasestorage.app",messagingSenderId:"686329670108",appId:"1:686329670108:web:1f64d568b259408648c719"});
+const _db=firebase.firestore();
+const _auth=firebase.auth();
+let _uid=null;
+
+function _cloudSave(){
+  if(!_uid) return;
+  try{
+    _db.collection('users').doc(_uid).set({
+      workouts:S.workouts||[],
+      prog:S.prog||null,
+      wiz:wiz,
+      custom_ex:JSON.parse(localStorage.getItem('ll_custom_ex')||'{}'),
+      saved_progs:JSON.parse(localStorage.getItem('ll_saved_progs')||'[]')
+    }).catch(()=>{});
+  }catch(e){}
+}
+
+function _firebaseSync(){
+  _auth.onAuthStateChanged(async user=>{
+    try{
+      if(!user){ await _auth.signInAnonymously(); return; }
+      _uid=user.uid;
+      const snap=await _db.collection('users').doc(_uid).get();
+      if(!snap.exists) return;
+      const d=snap.data();
+      if(d.workouts!==undefined){ localStorage.setItem('ll_w',JSON.stringify(d.workouts)); S.workouts=d.workouts; }
+      if(d.prog!==undefined){
+        localStorage.setItem('ll_p',JSON.stringify(d.prog)); S.prog=d.prog;
+        if(S.prog&&S.prog.isCustom&&S.prog.dayPrograms&&S.prog.dayPrograms.length){
+          FST7.length=0;
+          S.prog.dayPrograms.forEach((dp,i)=>FST7.push({day:dp.name||'Day '+(i+1),name:dp.name||'Day '+(i+1),muscles:[...new Set(dp.exercises.map(e=>e.muscle))],exercises:dp.exercises.map(e=>({...e}))}));
+        }
+      }
+      if(d.wiz!==undefined){ localStorage.setItem('ll_wiz',JSON.stringify(d.wiz)); Object.assign(wiz,d.wiz); }
+      if(d.custom_ex!==undefined){
+        localStorage.setItem('ll_custom_ex',JSON.stringify(d.custom_ex));
+        Object.keys(d.custom_ex).forEach(mg=>{ if(EX[mg]) EX[mg]=[...new Set([...EX[mg],...d.custom_ex[mg]])].sort(); });
+      }
+      if(d.saved_progs!==undefined) localStorage.setItem('ll_saved_progs',JSON.stringify(d.saved_progs));
+      renderHome();renderCal();renderWorkouts();renderHistory();renderStats();
+    }catch(e){}
+  });
+}
+
+// ═══════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════
@@ -1008,6 +1055,7 @@ function saveS(){
     localStorage.setItem('ll_lib',JSON.stringify(S.library));
     localStorage.setItem('ll_wiz',JSON.stringify(wiz));
   }catch(e){}
+  _cloudSave();
 }
 function loadS(){
   try{
@@ -1945,6 +1993,7 @@ function confirmAEMCustom(){
         if(!custom[aemCustomMG]) custom[aemCustomMG]=[];
         if(!custom[aemCustomMG].includes(name)) custom[aemCustomMG].push(name);
         localStorage.setItem('ll_custom_ex',JSON.stringify(custom));
+        _cloudSave();
       }catch(e){}
     }
   }
@@ -2593,6 +2642,7 @@ function wizSaveToLibrary(name,schedule){
   if(idx>=0) savedProgs[idx]=progData;
   else savedProgs.push(progData);
   localStorage.setItem('ll_saved_progs',JSON.stringify(savedProgs));
+  _cloudSave();
 }
 function saveWiz(){
   const name=wizValidate();
@@ -2963,6 +3013,7 @@ function init(){
   renderHistory();
   renderStats();
   setInterval(()=>{document.getElementById('heroGreet').textContent=new Date().getHours()<12?'Good morning 💪':new Date().getHours()<17?'Good afternoon 💪':'Good evening 💪';},60000);
+  _firebaseSync();
 }
 document.addEventListener('DOMContentLoaded',init);
 </script>
