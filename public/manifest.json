@@ -2,7 +2,7 @@
   "name": "LiftLog",
   "short_name": "LiftLog",
   "description": "Your personal workout tracker",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#111111",
