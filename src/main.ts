@@ -1,5 +1,6 @@
 import './styles/main.css';
 
+import { ilToast, ilConfirm } from './utils/ui';
 import { loadS } from './services/storage';
 import { firebaseSync } from './services/firebase';
 import { registerRenderers, goPage } from './nav/router';
@@ -100,6 +101,9 @@ Object.assign(window, {
   // Add Exercise modal
   openAEM, closeAEM, renderAEMgrid, renderAEMlist, toggleAEM, confirmAEM,
   aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom,
+
+  // UI utilities
+  ilToast, ilConfirm,
 });
 
 document.addEventListener('DOMContentLoaded', init);

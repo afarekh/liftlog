@@ -3,6 +3,7 @@ import { EX, MG_ORDER } from '../../data/exercises';
 import { fmtD, parseYMD, todayYMD, DOW_3 } from '../../utils/date';
 import { saveS } from '../../services/storage';
 import { cloudSave } from '../../services/firebase';
+import { ilToast } from '../../utils/ui';
 import { openAEM, registerWizHandlers } from '../../modals/addExercise';
 import { renderHome } from '../home';
 import { renderCal } from '../calendar';
@@ -51,9 +52,9 @@ export function wizNext(from: number): void {
   if (from === 1) {
     const nameEl = document.getElementById('wProgName') as HTMLInputElement | null;
     const name = nameEl?.value.trim() || '';
-    if (!name) { alert('Please enter a program name.'); return; }
+    if (!name) { ilToast('Enter a program name.', 'error'); return; }
     patchWiz({ name });
-    if (!wiz.startDate) { alert('Please select a start date.'); return; }
+    if (!wiz.startDate) { ilToast('Select a start date.', 'error'); return; }
     const requiredRest = 7 - (wiz.days || 5);
     if ((wiz.restDays || []).length < requiredRest) return;
     const numDays = wiz.days || 5;
@@ -580,9 +581,9 @@ export function w3SelWeek(w: number): void {
 function wizValidate(): string | null {
   const nameEl = document.getElementById('wProgName') as HTMLInputElement | null;
   const name = (nameEl?.value || wiz.name || '').trim();
-  if (!name) { alert('Enter a program name first.'); goWiz(1); return null; }
+  if (!name) { ilToast('Enter a program name first.', 'error'); goWiz(1); return null; }
   if (!(wiz.dayPrograms || []).some(d => d.exercises.length)) {
-    alert('Add exercises to at least one day.'); goWiz(2); return null;
+    ilToast('Add exercises to at least one day.', 'error'); goWiz(2); return null;
   }
   return name;
 }
@@ -646,7 +647,7 @@ export function activateWiz(): void {
   setWiz({ name: '', startDate: '', weeks: 8, days: 5, restDays: [2, 6], dayPrograms: [], activeDay: 0, activeWeek: null, activeWeeks: [], weekOverrides: {}, step: 1 });
   saveS(); renderHome(); renderCal(); renderStats();
   (window as any).goPage(0);
-  setTimeout(() => alert(`✅ "${name}" activated!`), 200);
+  setTimeout(() => ilToast(`"${name}" activated!`, 'success'), 200);
 }
 
 export function triggerImport(): void {
@@ -670,8 +671,8 @@ export function handleImport(e: Event): void {
       S.prog = { active: true, name, weeks: dur, startDate: start, schedule: { 0: 0, 1: 1, 3: 2, 4: 3, 5: 4 } };
       saveS(); renderHome(); renderCal(); renderStats();
       (window as any).goPage(0);
-      alert(`✅ "${name}" imported!`);
-    } catch (err) { alert('Invalid file.'); }
+      ilToast(`"${name}" imported!`, 'success');
+    } catch (err) { ilToast('Invalid file.', 'error'); }
   };
   reader.readAsText(file);
 }
@@ -786,15 +787,15 @@ export function renderLibrary(): void {
 export function activateSavedProg(pi: number): void {
   const savedProgs = JSON.parse(localStorage.getItem('ll_saved_progs') || '[]');
   const p = savedProgs[pi];
-  if (!p) { alert('Program not found.'); return; }
-  if (S.prog && S.prog.name === p.name) { alert(`"${p.name}" is already active.`); return; }
+  if (!p) { ilToast('Program not found.', 'error'); return; }
+  if (S.prog && S.prog.name === p.name) { ilToast(`"${p.name}" is already active.`, 'info'); return; }
   FST7.length = 0;
   (p.dayPrograms || []).forEach((d: any, i: number) => {
     FST7.push({ day: d.name || 'Day ' + (i + 1), name: d.name || 'Day ' + (i + 1), muscles: [...new Set((d.exercises || []).map((e: any) => e.muscle))] as string[], exercises: (d.exercises || []).map((e: any) => ({ ...e })) });
   });
   S.prog = { active: true, name: p.name, weeks: p.weeks || 8, days: p.days || 5, startDate: todayYMD(), schedule: p.schedule || {}, isCustom: true, weekOverrides: p.weekOverrides || {}, dayPrograms: p.dayPrograms };
   saveS(); renderHome(); renderCal(); renderStats(); renderLibrary();
-  alert(`✅ "${p.name}" activated!`);
+  ilToast(`"${p.name}" activated!`, 'success');
 }
 
 export function loadProgToWiz(idx: number): void {

@@ -893,3 +893,62 @@ button{cursor:pointer}
 .empty-t{font-size:17px;font-weight:800;color:var(--text);margin-bottom:5px}
 .empty-s{font-size:13px;line-height:1.5}
 
+
+/* ── TOAST ── */
+.il-toast{
+  position:fixed;
+  bottom:calc(70px + env(safe-area-inset-bottom,0px) + 14px);
+  left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--ink);color:#fff;
+  border-radius:14px;padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-b);font-size:13px;font-weight:600;
+  white-space:nowrap;max-width:calc(100vw - 36px);
+  z-index:800;opacity:0;
+  transition:opacity .22s,transform .22s;
+  pointer-events:none;
+}
+.il-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.il-toast-icon{display:flex;align-items:center;flex-shrink:0}
+.il-toast-msg{overflow:hidden;text-overflow:ellipsis}
+
+/* ── CONFIRM SHEET ── */
+.il-confirm-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:700;display:none;align-items:flex-end;justify-content:center;
+}
+.il-confirm-bg.open{display:flex}
+.il-confirm-sheet{
+  background:#fff;border-radius:22px 22px 0 0;
+  padding:12px 20px calc(24px + env(safe-area-inset-bottom,0px));
+  width:100%;max-width:480px;
+}
+.il-confirm-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--line2);margin:0 auto 18px;
+}
+.il-confirm-brand{
+  font-family:var(--font-b);font-size:12px;font-weight:700;
+  color:var(--lime-edge);letter-spacing:0.2px;
+  display:flex;align-items:center;gap:5px;
+  margin-bottom:10px;
+}
+.il-confirm-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--ink);display:inline-block;margin-bottom:1px;
+}
+.il-confirm-msg{
+  font-family:var(--font-d);font-size:22px;font-weight:700;
+  color:var(--ink);line-height:1.2;margin-bottom:22px;
+}
+.il-confirm-btns{display:flex;gap:10px}
+.il-confirm-cancel{
+  flex:1;height:50px;border:1px solid var(--line2);background:var(--bg);
+  border-radius:13px;font-family:var(--font-b);font-size:14px;
+  font-weight:700;color:var(--ink2);cursor:pointer;
+}
+.il-confirm-ok{
+  flex:2;height:50px;background:var(--ink);color:#fff;border:none;
+  border-radius:13px;font-family:var(--font-d);font-size:17px;
+  font-weight:800;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;
+}

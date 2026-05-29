@@ -6,6 +6,7 @@ import { renderSP } from './render';
 import { openCV, closeCV } from './completed';
 import { renderCal } from '../pages/calendar';
 import { renderHome } from '../pages/home';
+import { ilToast, ilConfirm } from '../utils/ui';
 import type { Session } from '../types';
 
 export function handleSessionBtn(ds: string, dayIdx: number, isLogged: number): void {
@@ -16,7 +17,7 @@ export function handleSessionBtn(ds: string, dayIdx: number, isLogged: number): 
 export function startFreshSession(ds: string, dayIdx: number): void {
   const day = FST7[dayIdx];
   if (!day || !day.exercises) {
-    alert('No exercises set up for this day. Set up your program first.');
+    ilToast('No exercises set up for this day.', 'error');
     (window as any).goPage(2);
     return;
   }
@@ -159,12 +160,18 @@ export function toggleTimer(): void {
 }
 
 export function restartFromCard(ds: string, dayIdx: number): void {
-  if (!confirm('Start a fresh session? Any existing logged data for this day will be deleted.')) return;
-  S.workouts = S.workouts.filter(w => w.date !== ds);
-  saveS();
-  renderCal();
-  renderHome();
-  startFreshSession(ds, dayIdx);
+  ilConfirm(
+    'Start fresh? Existing data for this day will be deleted.',
+    () => {
+      S.workouts = S.workouts.filter(w => w.date !== ds);
+      saveS();
+      renderCal();
+      renderHome();
+      startFreshSession(ds, dayIdx);
+    },
+    'Start Fresh',
+    true
+  );
 }
 
 export function restartSession(): void {
@@ -172,10 +179,16 @@ export function restartSession(): void {
   if (!rb) return;
   const cvDate = rb.dataset['date'];
   const cvDayIdx = parseInt(rb.dataset['dayidx'] || '0');
-  if (!cvDate) { alert('Session data not found.'); return; }
-  if (!confirm('Start fresh? The existing logged session will be deleted.')) return;
-  S.workouts = S.workouts.filter(w => w.date !== cvDate);
-  saveS();
-  closeCV();
-  startFreshSession(cvDate, cvDayIdx);
+  if (!cvDate) { ilToast('Session data not found.', 'error'); return; }
+  ilConfirm(
+    'Start fresh? The existing logged session will be deleted.',
+    () => {
+      S.workouts = S.workouts.filter(w => w.date !== cvDate);
+      saveS();
+      closeCV();
+      startFreshSession(cvDate, cvDayIdx);
+    },
+    'Start Fresh',
+    true
+  );
 }

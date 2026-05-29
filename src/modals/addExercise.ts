@@ -3,6 +3,7 @@ import { SESSION, aemCtx, aemMG, aemPicked, aemPickedMuscles, aemCustomMG,
 import { EX, MG_ORDER } from '../data/exercises';
 import { cloudSave } from '../services/firebase';
 import { renderSP } from '../session/render';
+import { ilToast } from '../utils/ui';
 
 // Will be set by workouts module to avoid circular deps
 let _getWizDayExercises: (() => any[]) | null = null;
@@ -166,7 +167,7 @@ export function confirmAEMCustom(): void {
   const nameEl = document.getElementById('aemCustomName') as HTMLInputElement | null;
   if (!nameEl) return;
   const name = nameEl.value.trim();
-  if (!name) { alert('Please enter an exercise name.'); return; }
+  if (!name) { ilToast('Enter an exercise name.', 'error'); return; }
   const saveTgl = document.getElementById('aemSaveTgl');
   const save = saveTgl?.classList.contains('on') ?? false;
 

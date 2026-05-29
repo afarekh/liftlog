@@ -1,6 +1,7 @@
 import { S, progMG, progExes, setProgMG, setProgExes } from '../store/state';
 import { EX } from '../data/exercises';
 import { fmt, fmtD, parseYMD } from '../utils/date';
+import { ilToast } from '../utils/ui';
 
 export function renderHistory(): void {
   const sess = [...S.workouts].sort((a, b) => b.date.localeCompare(a.date));
@@ -96,7 +97,7 @@ export function toggleProgEx(name: string): void {
 }
 
 export function showProgData(): void {
-  if (!progExes.length) { alert('Select at least one exercise.'); return; }
+  if (!progExes.length) { ilToast('Select at least one exercise.', 'error'); return; }
   const progDataEl = document.getElementById('progData');
   if (progDataEl) progDataEl.style.display = 'block';
   const data: Array<{ date: string; ex: string; kg: number; reps: number }> = [];

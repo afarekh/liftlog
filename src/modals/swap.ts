@@ -3,6 +3,7 @@ import { SESSION, FST7, S,
   setSwapExIdx, setSwapSelEx, setSwapMG } from '../store/state';
 import { EX } from '../data/exercises';
 import { saveS } from '../services/storage';
+import { ilToast } from '../utils/ui';
 import { renderSP } from '../session/render';
 
 export function openSM(ei: number): void {
@@ -75,7 +76,7 @@ export function useManual(): void {
   const nameEl = document.getElementById('manName') as HTMLInputElement | null;
   if (!nameEl) return;
   const name = nameEl.value.trim();
-  if (!name) { alert('Enter exercise name'); return; }
+  if (!name) { ilToast('Enter exercise name.', 'error'); return; }
   setSwapSelEx(name);
   const saveTgl = document.getElementById('saveTgl');
   if (saveTgl && saveTgl.classList.contains('on') && !S.library.includes(name)) {
