@@ -22,6 +22,11 @@ import { openCV, closeCV } from './session/completed';
 import { openSM, closeSM, smSelMG, renderSMlist, filterSwap, smPickEx, renderManMG, useManual, doSwap } from './modals/swap';
 import { openAEM, closeAEM, renderAEMgrid, renderAEMlist, toggleAEM, confirmAEM, aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom } from './modals/addExercise';
 
+function exitApp(): void {
+  window.close();
+  setTimeout(() => ilToast('Press the home button to exit', 'info'), 350);
+}
+
 function init(): void {
   loadS();
 
@@ -104,6 +109,9 @@ Object.assign(window, {
 
   // UI utilities
   ilToast, ilConfirm,
+
+  // App
+  exitApp,
 });
 
 document.addEventListener('DOMContentLoaded', init);

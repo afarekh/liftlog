@@ -118,7 +118,7 @@ export function renderSP(): void {
     </div>`;
   }
 
-  // UP NEXT section
+  // UP NEXT section — full interactive cards so user can view/pre-fill
   const upNextStart = activeIdx === -1 ? tot : activeIdx + 1;
   if (upNextStart < tot) {
     const remaining = tot - upNextStart;
@@ -127,12 +127,52 @@ export function renderSP(): void {
       const ex = SESSION.exercises[ei];
       const sets = ex.sets as SetEntry[];
       const prev = getPrev(ex.name);
-      const lastStr = prev ? ` · last ${prev.kg}×${prev.reps}` : '';
-      html += `<div class="up-next-row">
-        <div class="up-next-num">${ei + 1}</div>
-        <div class="up-next-info">
-          <div class="up-next-name">${ex.name}</div>
-          <div class="up-next-sub">${sets.length} × ${ex.reps}${lastStr}</div>
+      const prevStr = prev ? `${prev.kg}×${prev.reps}` : '—';
+      const firstNonDoneIdx = sets.findIndex(s => !s.done);
+
+      const rows = sets.map((s, si) => {
+        const isDone = s.done;
+        const isActive = si === firstNonDoneIdx;
+        const snCls = isDone ? 'sn c-done' : isActive ? 'sn c-active' : 'sn';
+        const inputCls = isDone ? 'si dn' : isActive ? 'si c-active' : 'si';
+        const tickCls = isDone ? 'tk dn' : isActive ? 'tk c-active' : 'tk';
+        const checkColor = isDone ? 'var(--ink)' : isActive ? 'var(--lime)' : 'var(--ink3)';
+        return `<div class="srow">
+          <div class="${snCls}">${si + 1}</div>
+          <div class="sprev">${prevStr}</div>
+          <input class="${inputCls}" type="number" inputmode="decimal" value="${s.kg}" placeholder="—"
+            onchange="setV(${ei},${si},'kg',this.value)"
+            onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
+          <input class="${inputCls}" type="number" inputmode="decimal" value="${s.reps}" placeholder="—"
+            onchange="setV(${ei},${si},'reps',this.value)"
+            onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
+          <button class="${tickCls}" onclick="tickSet(${ei},${si})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${checkColor}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5 11-11"/></svg>
+          </button>
+        </div>`;
+      }).join('');
+
+      html += `<div class="exb exb-upcoming" id="eb${ei}">
+        <div class="eb-hdr">
+          <div class="eb-num">${ex.muscle}</div>
+          <div class="eb-name${ex.fst7 ? ' fst' : ''}">${ex.fst7 ? '★ ' : ''}${ex.name}</div>
+          ${ex.note ? `<div class="eb-note">${ex.note}</div>` : ''}
+        </div>
+        <div class="eb-body">
+          <div class="sth-row">
+            <div>SET</div><div>PREV</div><div style="text-align:center">KG</div><div style="text-align:center">REPS</div><div></div>
+          </div>
+          ${rows}
+          <div class="set-adj-row">
+            <button class="rm-set-btn" onclick="delSet(${ei},${sets.length - 1})" ${sets.length <= 1 ? 'disabled style="opacity:0.4"' : ''}>
+              <div style="width:14px;height:2.4px;border-radius:2px;background:var(--ink2)"></div>
+            </button>
+            <button class="add-set" onclick="addSet(${ei})">+ ADD SET</button>
+          </div>
+          <button class="swpbtn" onclick="openSM(${ei})">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+            Swap exercise
+          </button>
         </div>
       </div>`;
     }

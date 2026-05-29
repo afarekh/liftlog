@@ -286,7 +286,7 @@ export function renderHomeTodayCard(): void {
       return;
     }
     const muscles = [...new Set(day.exercises.map(e => e.muscle).filter(Boolean))];
-    const muscleStr = muscles.slice(0, 4).join(' · ');
+    const muscleLabel = muscles.slice(0, 3).map(m => m.toUpperCase()).join(' & ');
 
     const chipHtml = day.exercises.slice(0, 4).map((e, i) =>
       `<div class="tcard-chip${i >= 2 ? ' dim' : ''}">${e.name.toUpperCase()}</div>`
@@ -310,8 +310,8 @@ export function renderHomeTodayCard(): void {
         <div class="tcard-tag">${logged ? 'LOGGED ✓' : 'UP NEXT'}</div>
         <div class="tcard-dur">${day.exercises.length} exercises</div>
       </div>
-      <div class="tcard-title">${day.name.toUpperCase()}</div>
-      ${muscleStr ? `<div class="tcard-muscles">${muscleStr}</div>` : ''}
+      <div class="tcard-day-num">DAY ${dayIdx + 1}</div>
+      <div class="tcard-title">${muscleLabel || day.name.toUpperCase()}</div>
       <div class="tcard-chips">${chipHtml}</div>
       <div class="tcard-ex-wrap" id="tcardExWrap">
         <div class="tcard-ex-inner">
