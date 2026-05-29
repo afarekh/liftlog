@@ -1,66 +1,141 @@
 import { SESSION, setSession } from '../store/state';
-import { chip } from '../utils/helpers';
 import { getPrev } from '../utils/helpers';
 import type { SetEntry } from '../types';
 
 export function renderSP(): void {
   if (!SESSION) return;
   const tot = SESSION.exercises.length;
-  const done = SESSION.exercises.filter(e => e.sets.every(s => (s as SetEntry).done)).length;
+  const activeIdx = SESSION.exercises.findIndex(e => !(e.sets as SetEntry[]).every(s => s.done));
+
+  // Update progress dots
   const pfillEl = document.getElementById('spPFill');
-  const plblEl = document.getElementById('spPLbl');
-  if (pfillEl) pfillEl.style.width = `${tot ? (done / tot) * 100 : 0}%`;
-  if (plblEl) plblEl.textContent = `${done}/${tot}`;
+  if (pfillEl) {
+    pfillEl.innerHTML = SESSION.exercises.map((_, i) => {
+      const allDone = (SESSION!.exercises[i].sets as SetEntry[]).every(s => s.done);
+      let cls = 'sp-dot-seg';
+      if (allDone) cls += ' done';
+      else if (i === activeIdx) cls += ' active';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+  }
+
+  // Update header title with exercise progress
+  const titleEl = document.getElementById('spTitle');
+  if (titleEl) {
+    titleEl.textContent = activeIdx === -1
+      ? `All ${tot} done`
+      : `Exercise ${activeIdx + 1} / ${tot}`;
+  }
 
   const exListEl = document.getElementById('spExList');
   if (!exListEl) return;
-  exListEl.innerHTML = SESSION.exercises.map((ex, ei) => {
+
+  let html = '';
+
+  // DONE section
+  const doneCount = activeIdx === -1 ? tot : activeIdx;
+  if (doneCount > 0) {
+    html += `<div class="sp-sec-lbl">DONE · ${doneCount}</div>`;
+    for (let ei = 0; ei < doneCount; ei++) {
+      const ex = SESSION.exercises[ei];
+      const sets = ex.sets as SetEntry[];
+      const filled = sets.filter(s => s.kg || s.reps);
+      const summary = filled.length > 0
+        ? `${filled.length} set${filled.length > 1 ? 's' : ''} · ${filled.slice(0, 3).map(s => `${s.kg || '—'} × ${s.reps || '—'}`).join(', ')}`
+        : `${sets.length} sets logged`;
+      html += `<div class="exb-done-row">
+        <div class="exb-done-check">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5 11-11"/></svg>
+        </div>
+        <div class="exb-done-info">
+          <div class="exb-done-name">${ex.name}</div>
+          <div class="exb-done-sub">${summary}</div>
+        </div>
+        <div class="exb-done-chev">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>`;
+    }
+  }
+
+  // IN PROGRESS section
+  if (activeIdx !== -1) {
+    html += `<div class="sp-sec-lbl active-lbl">IN PROGRESS</div>`;
+    const ex = SESSION.exercises[activeIdx];
     const sets = ex.sets as SetEntry[];
-    const allDone = sets.every(s => s.done);
     const prev = getPrev(ex.name);
-    const rows = sets.map((s, si) => `
-      <div class="srow">
-        <div class="sn">${si + 1}</div>
-        <div class="sw">
-          <input class="si${s.done ? ' dn' : ''}" type="number" value="${s.kg}" placeholder="${prev ? prev.kg : ''}"
-            onchange="setV(${ei},${si},'kg',this.value)"
-            onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
-          <div class="ph">${prev ? 'prev ' + prev.kg : ''}</div>
-        </div>
-        <div class="sw">
-          <input class="si${s.done ? ' dn' : ''}" type="number" value="${s.reps}" placeholder="${prev ? prev.reps : ''}"
-            onchange="setV(${ei},${si},'reps',this.value)"
-            onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
-          <div class="ph">${prev ? 'prev ' + prev.reps : ''}</div>
-        </div>
-        <button class="tk${s.done ? ' dn' : ''}" onclick="tickSet(${ei},${si})">${s.done ? '✅' : '○'}</button>
-        <button class="dx" onclick="delSet(${ei},${si})">×</button>
-      </div>`).join('');
-    return `<div class="exb${allDone ? ' done' : ''}" id="eb${ei}">
+    const prevStr = prev ? `${prev.kg}×${prev.reps}` : '—';
+    const firstNonDoneIdx = sets.findIndex(s => !s.done);
+
+    const rows = sets.map((s, si) => {
+      const isDone = s.done;
+      const isActive = si === firstNonDoneIdx;
+      const snCls = isDone ? 'sn c-done' : isActive ? 'sn c-active' : 'sn';
+      const inputCls = isDone ? 'si dn' : isActive ? 'si c-active' : 'si';
+      const tickCls = isDone ? 'tk dn' : isActive ? 'tk c-active' : 'tk';
+      const checkColor = isDone ? 'var(--ink)' : isActive ? 'var(--lime)' : 'var(--ink3)';
+      return `<div class="srow">
+        <div class="${snCls}">${si + 1}</div>
+        <div class="sprev">${prevStr}</div>
+        <input class="${inputCls}" type="number" inputmode="decimal" value="${s.kg}" placeholder="—"
+          onchange="setV(${activeIdx},${si},'kg',this.value)"
+          onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
+        <input class="${inputCls}" type="number" inputmode="decimal" value="${s.reps}" placeholder="—"
+          onchange="setV(${activeIdx},${si},'reps',this.value)"
+          onfocus="setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),300)">
+        <button class="${tickCls}" onclick="tickSet(${activeIdx},${si})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${checkColor}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5 11-11"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+
+    html += `<div class="exb" id="eb${activeIdx}">
       <div class="eb-hdr">
-        <div class="eb-top">
-          <div>
-            <div class="eb-num">Exercise ${ei + 1} of ${tot} · ${ex.muscle}</div>
-            <div class="eb-name${ex.fst7 ? ' fst' : ''}">${ex.fst7 ? '★ ' : ''}${ex.name}</div>
-          </div>
-          ${allDone ? '<div class="eb-done">✅ Done</div>' : ''}
-        </div>
-        <div class="eb-meta">
-          ${chip('Rx: ' + sets.length + '×' + ex.reps)}
-          <button class="swpbtn" onclick="openSM(${ei})">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-            Swap
-          </button>
-        </div>
+        <div class="eb-num">${ex.muscle}</div>
+        <div class="eb-name${ex.fst7 ? ' fst' : ''}">${ex.fst7 ? '★ ' : ''}${ex.name}</div>
         ${ex.note ? `<div class="eb-note">${ex.note}</div>` : ''}
       </div>
-      <div class="sth-row">
-        <div class="sth">#</div><div class="sth">KG</div><div class="sth">REPS</div><div class="sth">✓</div><div></div>
+      <div class="eb-body">
+        <div class="sth-row">
+          <div>SET</div><div>PREV</div><div style="text-align:center">KG</div><div style="text-align:center">REPS</div><div></div>
+        </div>
+        ${rows}
+        <div class="set-adj-row">
+          <button class="rm-set-btn" onclick="delSet(${activeIdx},${sets.length - 1})" ${sets.length <= 1 ? 'disabled style="opacity:0.4"' : ''}>
+            <div style="width:14px;height:2.4px;border-radius:2px;background:var(--ink2)"></div>
+          </button>
+          <button class="add-set" onclick="addSet(${activeIdx})">+ ADD SET</button>
+        </div>
+        <button class="swpbtn" onclick="openSM(${activeIdx})">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+          Swap exercise
+        </button>
       </div>
-      ${rows}
-      <button class="add-set" onclick="addSet(${ei})">+ Add Set</button>
     </div>`;
-  }).join('');
+  }
+
+  // UP NEXT section
+  const upNextStart = activeIdx === -1 ? tot : activeIdx + 1;
+  if (upNextStart < tot) {
+    const remaining = tot - upNextStart;
+    html += `<div style="margin-top:16px"><div class="sp-sec-lbl">UP NEXT · ${remaining} LEFT</div>`;
+    for (let ei = upNextStart; ei < tot; ei++) {
+      const ex = SESSION.exercises[ei];
+      const sets = ex.sets as SetEntry[];
+      const prev = getPrev(ex.name);
+      const lastStr = prev ? ` · last ${prev.kg}×${prev.reps}` : '';
+      html += `<div class="up-next-row">
+        <div class="up-next-num">${ei + 1}</div>
+        <div class="up-next-info">
+          <div class="up-next-name">${ex.name}</div>
+          <div class="up-next-sub">${sets.length} × ${ex.reps}${lastStr}</div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  exListEl.innerHTML = html;
 }
 
 export function setV(ei: number, si: number, f: 'kg' | 'reps', v: string): void {
@@ -77,12 +152,16 @@ export function tickSet(ei: number, si: number): void {
 
 export function addSet(ei: number): void {
   if (!SESSION) return;
-  SESSION.exercises[ei].sets.push({ kg: '', reps: '', done: false });
+  const sets = SESSION.exercises[ei].sets as SetEntry[];
+  const last = sets[sets.length - 1];
+  SESSION.exercises[ei].sets.push({ kg: last?.kg || '', reps: last?.reps || '', done: false });
   renderSP();
 }
 
 export function delSet(ei: number, si: number): void {
   if (!SESSION) return;
-  SESSION.exercises[ei].sets.splice(si, 1);
+  const sets = SESSION.exercises[ei].sets as SetEntry[];
+  if (sets.length <= 1) return;
+  sets.splice(si, 1);
   renderSP();
 }

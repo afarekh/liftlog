@@ -50,8 +50,8 @@ export function startFreshSession(ds: string, dayIdx: number): void {
 
   const titleEl = document.getElementById('spTitle');
   const subEl = document.getElementById('spSub');
-  if (titleEl) titleEl.textContent = day.name;
-  if (subEl) subEl.textContent = `${fmt(parseYMD(ds))} · ${day.day}`;
+  if (titleEl) titleEl.textContent = `Exercise 1 / ${day.exercises.length}`;
+  if (subEl) subEl.textContent = `${day.day.toUpperCase()} · WK ${weekNum}`;
 
   setTimerSecs(0);
   if (timerInt) clearInterval(timerInt);
@@ -93,8 +93,8 @@ export function openSession(ds: string, dayIdx: number): void {
 
   const titleEl = document.getElementById('spTitle');
   const subEl = document.getElementById('spSub');
-  if (titleEl) titleEl.textContent = day.name;
-  if (subEl) subEl.textContent = `${fmt(parseYMD(ds))} · ${day.day}`;
+  if (titleEl) titleEl.textContent = `Exercise 1 / ${day.exercises.length}`;
+  if (subEl) subEl.textContent = `${day.day.toUpperCase()} · DAY`;
 
   setTimerSecs(0);
   if (timerInt) clearInterval(timerInt);

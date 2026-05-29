@@ -3,7 +3,7 @@ import './styles/main.css';
 import { loadS } from './services/storage';
 import { firebaseSync } from './services/firebase';
 import { registerRenderers, goPage } from './nav/router';
-import { renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram, selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard } from './pages/home';
+import { renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram, selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard, toggleTodayCardExes } from './pages/home';
 import { renderCal, selectDay, renderCalDet, toggleCalExp, showDayOpts, confirmAct, initCalendarDelegation } from './pages/calendar';
 import { renderWorkouts, switchWTab } from './pages/workouts/index';
 import { renderHistory, switchHTab, renderProgTab, selProgMG, toggleProgEx, showProgData } from './pages/history';
@@ -68,7 +68,7 @@ Object.assign(window, {
 
   // Home page
   renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram,
-  selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard,
+  selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard, toggleTodayCardExes,
 
   // Calendar page
   renderCal, selectDay, renderCalDet, toggleCalExp, showDayOpts, confirmAct,

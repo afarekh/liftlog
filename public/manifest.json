@@ -1,6 +1,6 @@
 {
-  "name": "LiftLog v2",
-  "short_name": "LiftLog v2",
+  "name": "i-lift",
+  "short_name": "i-lift",
   "description": "Your personal workout tracker",
   "start_url": "/",
   "scope": "/",
@@ -8,8 +8,8 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#111111",
-  "theme_color": "#111111",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "icons": [
     {
       "src": "/icon-192.png",

@@ -1,27 +1,21 @@
 import { S, homeSelDate, homeCalExpanded, homeCalMonth, homeWeekOffset, homeProgramExpanded,
   setHomeSelDate, setHomeCalExpanded, setHomeCalMonth, setHomeWeekOffset, setHomeProgramExpanded } from '../store/state';
-import { fmt, fmtD, ymd, parseYMD, today, todayYMD, DOW_SHORT, monthName } from '../utils/date';
-import { chip, isInProgRange, getDayIdx, getLogged, getFST7Day } from '../utils/helpers';
+import { fmt, ymd, parseYMD, today, todayYMD, DOW_SHORT, monthName } from '../utils/date';
+import { isInProgRange, getDayIdx, getLogged } from '../utils/helpers';
 import { FST7 } from '../store/state';
 
 export function renderHome(): void {
   const h = today().getHours();
-  const greetEl = document.getElementById('heroGreet');
-  if (greetEl) greetEl.textContent = h < 12 ? 'Good morning 💪' : h < 17 ? 'Good afternoon 💪' : 'Good evening 💪';
+  const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 
-  const wkStart = new Date(today());
-  wkStart.setDate(today().getDate() - today().getDay());
-  const wkCount = S.workouts.filter(w => parseYMD(w.date) >= wkStart).length;
+  const greetNameEl = document.getElementById('heroGreetName');
+  if (greetNameEl) greetNameEl.textContent = greeting;
 
-  let streak = 0, d = new Date(today());
-  for (let i = 0; i < 365; i++) {
-    if (S.workouts.find(w => w.date === ymd(d))) { streak++; d.setDate(d.getDate() - 1); }
-    else break;
+  const greetDateEl = document.getElementById('heroGreetDate');
+  if (greetDateEl) {
+    const d = today();
+    greetDateEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   }
-  const streakEl = document.getElementById('streakChip');
-  const weekEl = document.getElementById('weekChip');
-  if (streakEl) streakEl.textContent = `🔥 ${streak} streak`;
-  if (weekEl) weekEl.textContent = `📅 ${wkCount} this week`;
 
   renderHomeProgram();
   renderHomeCalStrip();
@@ -65,116 +59,100 @@ export function homeCalNavMonth(dir: number): void {
   renderHomeCalStrip();
 }
 
+export function toggleTodayCardExes(): void {
+  const wrap = document.getElementById('tcardExWrap');
+  const btn = document.getElementById('tcardToggleBtn');
+  if (!wrap || !btn) return;
+  const isOpen = wrap.classList.toggle('open');
+  btn.innerHTML = isOpen
+    ? `Hide exercises <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>`
+    : `Show exercises <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>`;
+}
+
 export function renderHomeProgram(): void {
   const pb = document.getElementById('homeProgBanner');
   if (!pb) return;
+
   if (!S.prog || !S.prog.active) {
-    pb.innerHTML = `<div class="card-b" style="text-align:center;padding:18px">
-      <div style="font-size:14px;font-weight:800;margin-bottom:6px">No Active Program</div>
-      <button class="btn btn-g" style="padding:11px;font-size:13px" onclick="goPage(2)">Set Up Program</button>
+    pb.innerHTML = `<div class="pbanner" style="text-align:center;padding:20px">
+      <div class="p-name" style="font-size:16px;margin-bottom:8px">No Active Program</div>
+      <button class="start-btn" style="height:44px;font-size:14px" onclick="goPage(2)">Set Up Program</button>
     </div>`;
     return;
   }
 
   const start = parseYMD(S.prog.startDate);
-  const end = new Date(start); end.setDate(start.getDate() + S.prog.weeks * 7);
-  const done = S.workouts.length, total = S.prog.weeks * 5;
-  const pct = Math.min(100, Math.round((done / Math.max(total, 1)) * 100));
+  const diffDays = Math.max(0, Math.floor((today().getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+  const currentWeek = Math.min(Math.floor(diffDays / 7) + 1, S.prog.weeks);
+  const totalWeeks = S.prog.weeks;
+  const ringPct = totalWeeks > 1 ? Math.min(1, (currentWeek - 1) / (totalWeeks - 1)) : 1;
 
-  const MCOL: Record<string, string> = {
-    Back: '#3B82F6', Chest: '#EF4444', Legs: '#F59E0B', Shoulders: '#8B5CF6',
-    Biceps: '#06B6D4', Triceps: '#EC4899', Core: '#10B981', Calves: '#F97316',
-  };
+  const done = S.workouts.length;
+  const totalSessions = S.prog.weeks * 5;
 
-  const todayD = today();
-  const wkSun = new Date(todayD); wkSun.setDate(todayD.getDate() - todayD.getDay());
-  const wkSat = new Date(wkSun); wkSat.setDate(wkSun.getDate() + 6);
-  const wkSunStr = ymd(wkSun), wkSatStr = ymd(wkSat);
-  const wkWorkouts = S.workouts.filter(w => w.date >= wkSunStr && w.date <= wkSatStr);
+  // Ring SVG
+  const sz = 88, r = (sz - 12) / 2, c = 2 * Math.PI * r;
+  const offset = c * (1 - ringPct);
+  const ringHtml = `<svg width="${sz}" height="${sz}" style="transform:rotate(-90deg)" viewBox="0 0 ${sz} ${sz}">
+    <circle cx="${sz/2}" cy="${sz/2}" r="${r}" stroke="var(--line2)" stroke-width="6" fill="none"/>
+    <circle cx="${sz/2}" cy="${sz/2}" r="${r}" stroke="var(--lime-edge)" stroke-width="6" fill="none"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}" stroke-linecap="round"/>
+  </svg>`;
 
-  const allMuscles = [...new Set(FST7.filter(d => d && d.exercises).flatMap(d => d.exercises.map(e => e.muscle)))].sort();
-  const planned: Record<string, number> = {};
-  allMuscles.forEach(m => planned[m] = 0);
-  for (let i = 0; i < 7; i++) {
-    const d2 = new Date(wkSun); d2.setDate(wkSun.getDate() + i);
-    const dayIdx = getDayIdx(d2);
-    if (dayIdx === null) continue;
-    const day = FST7[dayIdx];
-    if (!day || !day.exercises) continue;
-    const muscles = [...new Set(day.exercises.map(e => e.muscle))];
-    muscles.forEach(m => { if (planned[m] !== undefined) planned[m]++; });
-  }
-
-  const logged: Record<string, number> = {};
-  allMuscles.forEach(m => logged[m] = 0);
-  wkWorkouts.forEach(w => {
-    const muscles = [...new Set((w.exercises || []).map(e => e.muscle))];
-    muscles.forEach(m => { if (logged[m] !== undefined) logged[m]++; });
-  });
-
-  const progStart = S.prog.startDate;
-  function maxKg(workouts: typeof S.workouts, muscle: string): number | null {
-    let max = 0;
-    workouts.forEach(w => {
-      (w.exercises || []).filter(e => e.muscle === muscle).forEach(e => {
-        const sets = e.sets as Array<{ kg: string; done: boolean }>;
-        sets.filter(s => s.done && s.kg).forEach(s => {
-          const v = parseFloat(s.kg); if (v > max) max = v;
-        });
-      });
+  // Muscle usage bars (sessions where muscle appeared)
+  const MUSCLES = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms'];
+  const muscleCounts: Record<string, number> = {};
+  MUSCLES.forEach(m => muscleCounts[m] = 0);
+  S.workouts.forEach(w => {
+    (w.exercises || []).forEach(e => {
+      const m = e.muscle;
+      if (muscleCounts[m] !== undefined) muscleCounts[m]++;
     });
-    return max || null;
-  }
-  const progWorkouts = S.workouts.filter(w => w.date >= progStart);
-
-  const statsRows = allMuscles.map(m => {
-    const col = MCOL[m] || '#9CA3AF';
-    const progMax = maxKg(progWorkouts, m);
-    const allMax = maxKg(S.workouts, m);
-    const isPB = progMax && allMax && progMax >= allMax;
-    const progCell = progMax ? `${progMax} kg` : `<span style="color:#D1D5DB">—</span>`;
-    const allCell = allMax ? `${allMax} kg` : `<span style="color:#D1D5DB">—</span>`;
-    const dl = logged[m] || 0, pl = planned[m] || 0;
-    const sessCell = dl > 0
-      ? `<span style="color:#4CAF50;font-weight:900">${dl}</span><span style="color:#D1D5DB;font-size:11px">/${pl}</span>`
-      : `<span style="color:#D1D5DB;font-size:11px">—/${pl}</span>`;
-    const pbBadge = isPB ? `<span style="font-size:8px;font-weight:700;color:#16A34A;background:#DCFCE7;border-radius:4px;padding:1px 5px;margin-left:3px">PB</span>` : '';
-    return `<tr>
-      <td style="padding:8px 0;border-top:1px solid #F3F4F6;font-size:12px">
-        <div style="display:flex;align-items:center">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;flex-shrink:0"></span>${m}
-        </div>
-      </td>
-      <td style="padding:8px 0;border-top:1px solid #F3F4F6;text-align:right;font-size:12px;font-weight:700">${progCell}${pbBadge}</td>
-      <td style="padding:8px 0;border-top:1px solid #F3F4F6;text-align:right;font-size:11px;font-weight:500;color:#6B7280">${allCell}</td>
-      <td style="padding:8px 0;border-top:1px solid #F3F4F6;text-align:center;font-size:12px">${sessCell}</td>
-    </tr>`;
+  });
+  const maxCount = Math.max(...Object.values(muscleCounts), 1);
+  const muscleBars = MUSCLES.map(m => {
+    const count = muscleCounts[m] || 0;
+    const pct = Math.round((count / maxCount) * 100);
+    return `<div class="p-muscle-row">
+      <div class="p-muscle-name">${m}</div>
+      <div class="p-muscle-bar"><div class="p-muscle-fill" style="width:${pct}%"></div></div>
+      <div class="p-muscle-val">${count}</div>
+    </div>`;
   }).join('');
 
-  const chevron = homeProgramExpanded ? '▲' : '▼';
+  const chevSvg = homeProgramExpanded
+    ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>`
+    : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>`;
+
   pb.innerHTML = `<div class="pbanner">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-      <div><div class="p-lbl">Active</div><div class="p-name">${S.prog.name}</div></div>
-      <button onclick="goPage(2)" style="padding:6px 12px;background:var(--light);border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Change</button>
+    <div class="p-ring-row">
+      <div class="p-ring-wrap">
+        ${ringHtml}
+        <div class="p-ring-inner">
+          <div class="p-ring-wk">${currentWeek}<span>/${totalWeeks}</span></div>
+          <div class="p-ring-lbl">WEEKS</div>
+        </div>
+      </div>
+      <div class="p-info">
+        <div class="p-name">${S.prog.name}</div>
+        <div class="p-lbl">${done} of ${totalSessions} sessions</div>
+        <div class="p-stats-row">
+          <div><div class="p-stat-v">${done}</div><div class="p-stat-l">SESSIONS</div></div>
+          <div><div class="p-stat-v">${currentWeek}</div><div class="p-stat-l">CURR WEEK</div></div>
+        </div>
+      </div>
     </div>
-    <div style="margin-bottom:6px">${chip('📅 ' + S.prog.weeks + 'w')}${chip('🏋️ ' + done + '/' + (S.prog.weeks * 5))}${chip('Ends ' + fmtD(end))}</div>
-    <div class="pbar-t"><div class="pbar-f" style="width:${pct}%"></div></div>
-    <div class="pbar-pct">${pct}% complete</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-top:10px;padding-top:8px;border-top:1px solid #EDEDED" onclick="toggleHomeProgram()">
-      <span style="font-size:10px;font-weight:700;color:#6B7280">Muscle stats</span>
-      <span style="font-size:11px;color:#6B7280">${chevron}</span>
+    <div class="p-detail-wrap${homeProgramExpanded ? ' open' : ''}">
+      <div class="p-detail-inner">
+        <div class="p-detail">
+          <div class="p-detail-eyebrow">SESSIONS BY MUSCLE</div>
+          ${muscleBars}
+        </div>
+      </div>
     </div>
-    ${homeProgramExpanded ? `<div style="margin-top:10px">
-      <table style="width:100%;border-collapse:collapse">
-        <thead><tr>
-          <th style="font-size:9px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.8px;padding:0 0 7px;text-align:left">Muscle</th>
-          <th style="font-size:9px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.8px;padding:0 0 7px;text-align:right">Prog max</th>
-          <th style="font-size:9px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.8px;padding:0 0 7px;text-align:right">All-time</th>
-          <th style="font-size:9px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.8px;padding:0 0 7px;text-align:center">This wk</th>
-        </tr></thead>
-        <tbody>${statsRows}</tbody>
-      </table>
-    </div>` : ''}
+    <button class="p-toggle" onclick="toggleHomeProgram()">
+      ${homeProgramExpanded ? 'Hide details' : 'Program details'} ${chevSvg}
+    </button>
   </div>`;
 }
 
@@ -185,9 +163,8 @@ export function renderHomeCalStrip(): void {
   const todayStr = ymd(todayD);
   if (!homeCalMonth) setHomeCalMonth({ y: todayD.getFullYear(), m: todayD.getMonth() });
   const { y: calY, m: calM } = homeCalMonth!;
-  const chevron = homeCalExpanded ? '▲' : '▼';
   const isCurrentMonth = calY === todayD.getFullYear() && calM === todayD.getMonth();
-  const mLabel = `${monthName(calM)} ${calY}` + (isCurrentMonth ? ' <span style="font-size:9px;color:var(--green);font-weight:700">· Now</span>' : '');
+  const mLabel = `${monthName(calM)} ${calY}` + (isCurrentMonth ? ' · Now' : '');
 
   function dayState(d: Date) {
     const ds = ymd(d);
@@ -222,19 +199,7 @@ export function renderHomeCalStrip(): void {
     </div>`;
   }
 
-  const header = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    ${homeCalExpanded
-      ? `<span style="font-size:11px;font-weight:700;color:var(--muted)">${mLabel}</span>
-        <div style="display:flex;gap:4px">
-          <button onclick="homeCalNavMonth(-1)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">‹</button>
-          <button onclick="homeCalNavMonth(1)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">›</button>
-          <button onclick="homeCalToggle(false)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:11px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">▲</button>
-        </div>`
-      : `<span></span><span></span>`
-    }
-  </div>`;
-
-  let body = '';
+  let html = '';
   if (!homeCalExpanded) {
     const startOfWeek = new Date(todayD);
     startOfWeek.setDate(todayD.getDate() - todayD.getDay() + (homeWeekOffset * 7));
@@ -243,36 +208,58 @@ export function renderHomeCalStrip(): void {
     const MSHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const weekLbl = isCurrentWeek
       ? `${MSHORT[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`
-      : `${startOfWeek.getDate()} – ${endOfWeek.getDate()} ${MSHORT[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
-    const stripHeader = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:11px;font-weight:700;color:var(--muted)">${weekLbl}</span>
-      <div style="display:flex;gap:4px">
-        <button onclick="homeWeekNav(-1)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">‹</button>
-        ${!isCurrentWeek ? `<button onclick="homeWeekReset()" style="border:none;background:var(--light);border-radius:8px;padding:0 8px;font-size:9px;font-weight:700;cursor:pointer;color:var(--green);height:24px">Now</button>` : ''}
-        <button onclick="homeWeekNav(1)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">›</button>
-        <button onclick="homeCalToggle(true)" style="width:24px;height:24px;border:none;background:var(--light);border-radius:8px;font-size:11px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">▼</button>
-      </div>
+      : `${startOfWeek.getDate()} – ${endOfWeek.getDate()} ${MSHORT[endOfWeek.getMonth()]}`;
+
+    const navBtns = `<div class="wstrip-nav">
+      <button onclick="homeWeekNav(-1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button onclick="homeWeekNav(1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>`;
-    body = stripHeader + `<div class="cal-strip">`;
+
+    html = `<div class="wstrip-hdr">
+      <div class="wstrip-date-lbl">${weekLbl}</div>
+      ${navBtns}
+    </div><div class="cal-strip">`;
     for (let i = 0; i < 7; i++) {
       const d2 = new Date(startOfWeek); d2.setDate(startOfWeek.getDate() + i);
-      body += stripCell(d2);
+      html += stripCell(d2);
     }
-    body += `</div>`;
+    html += `</div>`;
+    if (!isCurrentWeek) {
+      html += `<button onclick="homeWeekReset()" style="display:block;margin:8px auto 0;border:none;background:none;font-size:10px;font-weight:700;color:var(--lime-text);cursor:pointer;letter-spacing:0.5px">Back to today</button>`;
+    }
   } else {
+    const navBtns = `<div style="display:flex;gap:6px">
+      <button onclick="homeCalNavMonth(-1)" style="width:24px;height:24px;border:1px solid var(--line2);background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button onclick="homeCalNavMonth(1)" style="width:24px;height:24px;border:1px solid var(--line2);background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button onclick="homeCalToggle(false)" style="width:24px;height:24px;border:1px solid var(--line2);background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+      </button>
+    </div>`;
+    html = `<div class="wstrip-hdr">
+      <div class="wstrip-date-lbl">${mLabel}</div>
+      ${navBtns}
+    </div>`;
     const firstDOW = new Date(calY, calM, 1).getDay();
     const numDays = new Date(calY, calM + 1, 0).getDate();
-    body = `<div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px">${DOW_SHORT.map(d2 => `<div style="text-align:center;font-size:9px;font-weight:700;color:var(--muted);padding:2px 0">${d2}</div>`).join('')}</div>`;
-    body += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">`;
-    for (let i = 0; i < firstDOW; i++) body += `<div></div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px">${DOW_SHORT.map(d2 => `<div style="text-align:center;font-size:9px;font-weight:700;color:var(--ink3);padding:2px 0">${d2}</div>`).join('')}</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">`;
+    for (let i = 0; i < firstDOW; i++) html += `<div></div>`;
     for (let d2 = 1; d2 <= numDays; d2++) {
       const date2 = new Date(calY, calM, d2);
-      body += `<div style="display:flex;justify-content:center;padding:2px 0">${gridCell(date2)}</div>`;
+      html += `<div style="display:flex;justify-content:center;padding:2px 0">${gridCell(date2)}</div>`;
     }
-    body += `</div>`;
+    html += `</div>`;
   }
 
-  cs.innerHTML = `<div style="background:#fff;border-radius:14px;padding:12px 10px 10px;box-shadow:var(--shadow);margin-bottom:10px">${homeCalExpanded ? header : ''}${body}</div>`;
+  cs.innerHTML = `<div style="margin-bottom:10px">${html}</div>`;
 }
 
 export function renderHomeTodayCard(): void {
@@ -282,7 +269,7 @@ export function renderHomeTodayCard(): void {
   const activeDate = homeSelDate ? parseYMD(homeSelDate) : today();
   const activeStr = homeSelDate || todayYMD();
   const isToday2 = activeStr === todayYMD();
-  if (lbl) lbl.textContent = isToday2 ? 'Today' : fmt(activeDate);
+  if (lbl) lbl.textContent = isToday2 ? 'TODAY' : fmt(activeDate).toUpperCase();
   const dayIdx = getDayIdx(activeDate);
   const logged = getLogged(activeStr);
   const inProg = isInProgRange(activeStr);
@@ -290,35 +277,64 @@ export function renderHomeTodayCard(): void {
   if (dayIdx !== null) {
     const day = FST7[dayIdx];
     if (!day || !day.exercises) {
-      tc.innerHTML = `<div class="tcrd" style="text-align:center;padding:20px">
-        <div style="font-size:28px;margin-bottom:6px">🏋️</div>
-        <div style="font-size:15px;font-weight:800;margin-bottom:3px">Training Day</div>
-        <div style="font-size:11px;color:var(--muted)">No exercises set up yet.</div>
-        <button class="btn btn-g" style="margin-top:10px" onclick="goPage(2)">Set Up Exercises</button>
+      tc.innerHTML = `<div class="tcrd">
+        <div style="font-size:28px;margin-bottom:8px">🏋️</div>
+        <div class="t-name">Training Day</div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:12px">No exercises set up yet.</div>
+        <button class="start-btn" style="height:44px;font-size:14px" onclick="goPage(2)">Set Up Exercises</button>
       </div>`;
       return;
     }
-    const chips = day.exercises.slice(0, 4).map(e => chip(e.name, !!e.fst7)).join('') + chip('+more');
-    const muscles = [...new Set(day.exercises.map(e => e.muscle).filter(Boolean))].slice(0, 3).map(m => `<span class="chip">${m}</span>`).join('');
-    tc.innerHTML = `<div class="tcrd">
-      <div class="t-lbl">${isToday2 ? "Today's Program" : fmt(activeDate)}</div>
-      <div class="t-name">${day.day} — ${day.name}</div>
-      ${muscles ? `<div style="margin-bottom:6px">${muscles}</div>` : ''}
-      <div style="margin-bottom:12px">${chips}</div>
-      <button class="btn btn-g" style="width:100%;margin-bottom:5px" onclick="handleSessionBtn('${activeStr}',${dayIdx},${logged ? 1 : 0})">${logged ? '🔄 Restart Session' : '▶ Start Session'}</button>
-      <button class="btn" style="width:100%;background:var(--light);color:var(--muted);font-size:11px;font-weight:700" onclick="showDayOpts('${activeStr}',${logged ? 1 : 0})">⚙️ Options</button>
+    const chipHtml = day.exercises.slice(0, 4).map((e, i) =>
+      `<div class="tcard-chip${i >= 2 ? ' dim' : ''}">${e.name.toUpperCase()}</div>`
+    ).join('') + (day.exercises.length > 4
+      ? `<div class="tcard-chip dim">+${day.exercises.length - 4} MORE</div>` : '');
+
+    const exListHtml = day.exercises.map((e, i) => {
+      const setsCount = typeof e.sets === 'number' ? e.sets : (e.sets as any[]).length;
+      return `<div class="tcard-ex-row">
+        <div class="tcard-ex-num">${i + 1}</div>
+        <div class="tcard-ex-info">
+          <div class="tcard-ex-name">${e.name.toUpperCase()}</div>
+          <div class="tcard-ex-sub">${e.muscle}</div>
+        </div>
+        <div class="tcard-ex-sets">${setsCount} × ${e.reps}</div>
+      </div>`;
+    }).join('');
+
+    tc.innerHTML = `<div class="tcard">
+      <div class="tcard-meta">
+        <div class="tcard-tag">${logged ? 'LOGGED ✓' : 'UP NEXT'}</div>
+        <div class="tcard-dur">${day.exercises.length} exercises</div>
+      </div>
+      <div class="tcard-title">${day.name.toUpperCase()}</div>
+      <div class="tcard-chips">${chipHtml}</div>
+      <div class="tcard-ex-wrap" id="tcardExWrap">
+        <div class="tcard-ex-inner">
+          <div class="tcard-ex-list">${exListHtml}</div>
+        </div>
+      </div>
+      <button class="tcard-toggle" onclick="toggleTodayCardExes()" id="tcardToggleBtn">
+        Show exercises
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div style="height:14px"></div>
+      <button class="start-btn" onclick="handleSessionBtn('${activeStr}',${dayIdx},${logged ? 1 : 0})">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/></svg>
+        ${logged ? 'RESTART SESSION' : 'START WORKOUT'}
+      </button>
     </div>`;
   } else if (inProg) {
-    tc.innerHTML = `<div class="tcrd" style="text-align:center;padding:20px">
-      <div style="font-size:28px;margin-bottom:6px">💤</div>
-      <div style="font-size:15px;font-weight:800;margin-bottom:3px">Rest Day</div>
-      <div style="font-size:11px;color:var(--muted)">Recovery is part of the program.</div>
+    tc.innerHTML = `<div class="tcrd">
+      <div style="font-size:28px;margin-bottom:8px">💤</div>
+      <div class="t-name">Rest Day</div>
+      <div style="font-size:12px;color:var(--ink3)">Recovery is part of the program.</div>
     </div>`;
   } else {
-    tc.innerHTML = `<div class="tcrd" style="text-align:center;padding:20px">
-      <div style="font-size:28px;margin-bottom:6px">📅</div>
-      <div style="font-size:15px;font-weight:800;margin-bottom:3px">No Session Scheduled</div>
-      <div style="font-size:11px;color:var(--muted)">Outside of active program range.</div>
+    tc.innerHTML = `<div class="tcrd">
+      <div style="font-size:28px;margin-bottom:8px">📅</div>
+      <div class="t-name">No Session</div>
+      <div style="font-size:12px;color:var(--ink3)">Outside active program range.</div>
     </div>`;
   }
 }
