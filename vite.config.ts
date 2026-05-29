@@ -9,13 +9,17 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
-      manifest: false, // use existing manifest.json
+      injectRegister: 'auto',
+      manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,ico}'],
+        globPatterns: ['**/*.{js,css,html,png,ico,json}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/firestore\.googleapis\.com/,
             handler: 'NetworkFirst',
+            options: { cacheName: 'firestore-cache' },
           },
         ],
       },
