@@ -35,6 +35,15 @@ function init(): void {
   initWizardHandlers();
   initCalendarDelegation();
 
+  // Buttons that have no onclick attribute and need event listeners
+  document.getElementById('spDoneBtn')?.addEventListener('click', completeWorkout);
+  document.getElementById('spAddExBtn')?.addEventListener('click', () => openAEM('session'));
+  document.getElementById('cvBackBtn')?.addEventListener('click', closeCV);
+  document.getElementById('cvBackBtn2')?.addEventListener('click', closeCV);
+  document.getElementById('cvRestartBtn')?.addEventListener('click', restartSession);
+  document.getElementById('smClose')?.addEventListener('click', closeSM);
+  document.getElementById('aemClose')?.addEventListener('click', closeAEM);
+
   firebaseSync({
     renderHome,
     renderCal,
