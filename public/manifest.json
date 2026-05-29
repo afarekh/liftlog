@@ -1,6 +1,6 @@
 {
-  "name": "LiftLog",
-  "short_name": "LiftLog",
+  "name": "LiftLog v2",
+  "short_name": "LiftLog v2",
   "description": "Your personal workout tracker",
   "start_url": "/",
   "scope": "/",
