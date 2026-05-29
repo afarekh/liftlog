@@ -106,6 +106,10 @@ export function renderSP(): void {
           </button>
           <button class="add-set" onclick="addSet(${activeIdx})">+ ADD SET</button>
         </div>
+        <button class="ex-next-btn" onclick="nextExercise(${activeIdx})">
+          ${activeIdx === tot - 1 ? 'FINISH EXERCISE' : 'DONE · NEXT EXERCISE'}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
         <button class="swpbtn" onclick="openSM(${activeIdx})">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
           Swap exercise
@@ -164,4 +168,12 @@ export function delSet(ei: number, si: number): void {
   if (sets.length <= 1) return;
   sets.splice(si, 1);
   renderSP();
+}
+
+export function nextExercise(ei: number): void {
+  if (!SESSION) return;
+  const sets = SESSION.exercises[ei].sets as SetEntry[];
+  sets.forEach(s => { s.done = true; });
+  renderSP();
+  document.getElementById('spExList')?.scrollTo({ top: 0, behavior: 'smooth' });
 }
