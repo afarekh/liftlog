@@ -16,15 +16,16 @@ import {
   renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz, triggerImport, handleImport,
   startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz,
 } from './pages/workouts/wizard';
-import { handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession } from './session/index';
+import { handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession, resumeSession } from './session/index';
 import { renderSP, setV, tickSet, addSet, delSet, nextExercise, toggleEx } from './session/render';
 import { openCV, closeCV } from './session/completed';
 import { openSM, closeSM, smSelMG, renderSMlist, filterSwap, smPickEx, renderManMG, useManual, doSwap } from './modals/swap';
 import { openAEM, closeAEM, renderAEMgrid, renderAEMlist, toggleAEM, confirmAEM, aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom } from './modals/addExercise';
 
 function exitApp(): void {
-  window.close();
-  setTimeout(() => ilToast('Press the home button to exit', 'info'), 350);
+  // Show instruction immediately (window.close() is unreliable on mobile PWA)
+  ilToast('Press the home button to exit', 'info');
+  setTimeout(() => { try { window.close(); } catch (_) {} }, 250);
 }
 
 function init(): void {
@@ -96,7 +97,7 @@ Object.assign(window, {
   startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz,
 
   // Session
-  handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession,
+  handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession, resumeSession,
   renderSP, setV, tickSet, addSet, delSet, nextExercise, toggleEx,
   openCV, closeCV,
 

@@ -635,6 +635,28 @@ button{cursor:pointer}
   padding-bottom:20px;
 }
 #CV.open{display:block}
+
+/* ── RESUME PILL ── */
+#spResumePill{
+  position:fixed;
+  bottom:calc(var(--bnav-h) + env(safe-area-inset-bottom,0px) + 10px);
+  left:50%;transform:translateX(-50%);
+  z-index:195;
+  background:var(--ink);color:#fff;border:none;
+  padding:13px 22px 13px 18px;
+  border-radius:28px;
+  font-family:var(--font-d);font-size:15px;font-weight:800;
+  letter-spacing:0.5px;text-transform:uppercase;
+  display:none;align-items:center;gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 28px rgba(0,0,0,0.28);
+  white-space:nowrap;
+}
+#spResumePill.show{display:flex}
+.sp-resume-timer{
+  font-family:var(--font-d);font-size:13px;font-weight:700;
+  opacity:0.65;font-variant-numeric:tabular-nums;
+}
 .cv-hdr{background:#fff;padding:28px 14px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
 .cv-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
 .cv-ttl{font-size:15px;font-weight:900}

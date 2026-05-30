@@ -7,6 +7,7 @@ import { openCV, closeCV } from './completed';
 import { renderCal } from '../pages/calendar';
 import { renderHome } from '../pages/home';
 import { ilToast, ilConfirm } from '../utils/ui';
+import { updateResumePill } from '../nav/router';
 import type { Session } from '../types';
 
 export function handleSessionBtn(ds: string, dayIdx: number, isLogged: number): void {
@@ -65,8 +66,11 @@ export function startFreshSession(ds: string, dayIdx: number): void {
   setTimerInt(setInterval(() => {
     if (!timerPaused) {
       setTimerSecs(timerSecs + 1);
+      const t = fmtSecs(timerSecs);
       const el = document.getElementById('spTimer');
-      if (el) el.textContent = fmtSecs(timerSecs);
+      if (el) el.textContent = t;
+      const pt = document.getElementById('spResumePillTimer');
+      if (pt) pt.textContent = t;
     }
   }, 1000));
 
@@ -74,6 +78,7 @@ export function startFreshSession(ds: string, dayIdx: number): void {
   renderSP();
   const sp = document.getElementById('SP');
   if (sp) { sp.classList.add('open'); sp.scrollTop = 0; }
+  updateResumePill();
   history.pushState({ v: 'session' }, '');
 }
 
@@ -107,8 +112,11 @@ export function openSession(ds: string, dayIdx: number): void {
   setTimerInt(setInterval(() => {
     if (!timerPaused) {
       setTimerSecs(timerSecs + 1);
+      const t = fmtSecs(timerSecs);
       const el = document.getElementById('spTimer');
-      if (el) el.textContent = fmtSecs(timerSecs);
+      if (el) el.textContent = t;
+      const pt = document.getElementById('spResumePillTimer');
+      if (pt) pt.textContent = t;
     }
   }, 1000));
 
@@ -116,7 +124,14 @@ export function openSession(ds: string, dayIdx: number): void {
   renderSP();
   const sp = document.getElementById('SP');
   if (sp) { sp.classList.add('open'); sp.scrollTop = 0; }
+  updateResumePill();
   history.pushState({ v: 'session' }, '');
+}
+
+export function resumeSession(): void {
+  const sp = document.getElementById('SP');
+  if (sp) { sp.classList.add('open'); sp.scrollTop = 0; }
+  updateResumePill();
 }
 
 export function closeSession(): void {
@@ -124,6 +139,7 @@ export function closeSession(): void {
   const sp = document.getElementById('SP');
   if (sp) sp.classList.remove('open');
   setSession(null);
+  updateResumePill();
 }
 
 export function completeWorkout(): void {
@@ -148,6 +164,7 @@ export function completeWorkout(): void {
   const sp = document.getElementById('SP');
   if (sp) sp.classList.remove('open');
   setSession(null);
+  updateResumePill();
   openCV(w);
   renderCal();
   renderHome();
