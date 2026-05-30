@@ -111,11 +111,11 @@ button{cursor:pointer}
 .h-divider{width:1px;height:18px;background:var(--line2);flex-shrink:0}
 .h-greet-wrap{min-width:0}
 .h-greet-name{
-  font-family:var(--font-d);font-size:17px;font-weight:700;
-  color:var(--ink);letter-spacing:-0.2px;line-height:1;
+  font-family:var(--font-d);font-size:26px;font-weight:700;
+  color:var(--ink);letter-spacing:-0.3px;line-height:1;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.h-greet-date{font-family:var(--font-b);font-size:10.5px;color:var(--ink3);margin-top:2px}
+.h-greet-date{font-family:var(--font-b);font-size:11px;color:var(--ink3);margin-top:3px}
 .h-avatar{
   width:38px;height:38px;border-radius:12px;flex-shrink:0;
   background:var(--bg);border:1px solid var(--line2);
