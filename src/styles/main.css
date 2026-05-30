@@ -104,8 +104,10 @@ button{cursor:pointer}
 /* Header */
 .h-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 18px}
 .h-hdr-left{display:flex;align-items:center;gap:10px;min-width:0}
-.h-logo{display:inline-flex;align-items:center;flex-shrink:0}
-.h-logo-img{height:34px;width:auto;display:block}
+.h-logo{display:inline-flex;align-items:baseline;flex-shrink:0;line-height:1}
+.h-logo-i{font-family:var(--font-b);font-weight:600;font-size:22px;color:#9CA3AF;letter-spacing:-0.5px}
+.h-logo-lift{font-family:var(--font-d);font-weight:800;font-size:28px;color:var(--ink);font-style:italic;letter-spacing:-1px}
+.h-logo-dot{font-family:var(--font-d);font-weight:800;font-size:28px;color:var(--lime);line-height:1}
 .h-divider{width:1px;height:18px;background:var(--line2);flex-shrink:0}
 .h-greet-wrap{min-width:0}
 .h-greet-name{
