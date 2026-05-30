@@ -17,7 +17,7 @@ import {
   startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz,
 } from './pages/workouts/wizard';
 import { handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession } from './session/index';
-import { renderSP, setV, tickSet, addSet, delSet, nextExercise } from './session/render';
+import { renderSP, setV, tickSet, addSet, delSet, nextExercise, toggleEx } from './session/render';
 import { openCV, closeCV } from './session/completed';
 import { openSM, closeSM, smSelMG, renderSMlist, filterSwap, smPickEx, renderManMG, useManual, doSwap } from './modals/swap';
 import { openAEM, closeAEM, renderAEMgrid, renderAEMlist, toggleAEM, confirmAEM, aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom } from './modals/addExercise';
@@ -97,7 +97,7 @@ Object.assign(window, {
 
   // Session
   handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession,
-  renderSP, setV, tickSet, addSet, delSet, nextExercise,
+  renderSP, setV, tickSet, addSet, delSet, nextExercise, toggleEx,
   openCV, closeCV,
 
   // Swap modal

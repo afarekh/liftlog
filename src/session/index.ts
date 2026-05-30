@@ -2,7 +2,7 @@ import { S, SESSION, timerInt, timerSecs, timerPaused, FST7, wiz,
   setSession, setTimerInt, setTimerSecs, setTimerPaused } from '../store/state';
 import { fmt, fmtSecs, ymd, parseYMD, todayYMD } from '../utils/date';
 import { saveS } from '../services/storage';
-import { renderSP } from './render';
+import { renderSP, resetSPExpanded } from './render';
 import { openCV, closeCV } from './completed';
 import { renderCal } from '../pages/calendar';
 import { renderHome } from '../pages/home';
@@ -70,6 +70,7 @@ export function startFreshSession(ds: string, dayIdx: number): void {
     }
   }, 1000));
 
+  resetSPExpanded();
   renderSP();
   const sp = document.getElementById('SP');
   if (sp) { sp.classList.add('open'); sp.scrollTop = 0; }
@@ -111,6 +112,7 @@ export function openSession(ds: string, dayIdx: number): void {
     }
   }, 1000));
 
+  resetSPExpanded();
   renderSP();
   const sp = document.getElementById('SP');
   if (sp) { sp.classList.add('open'); sp.scrollTop = 0; }

@@ -501,20 +501,39 @@ button{cursor:pointer}
   background:var(--bg);border:1px solid var(--line2);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
-/* Active exercise card */
-.exb{background:var(--card);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin-bottom:8px}
-.exb.done{background:var(--card)}
-.eb-hdr{padding:16px 16px 0}
+/* Exercise card (expandable) */
+.exb{background:var(--card);border-radius:18px;border:1px solid var(--line);overflow:hidden;margin-bottom:8px}
+.exb.exb-active{border-color:var(--ink);box-shadow:0 2px 14px rgba(0,0,0,0.06)}
+.eb-hdr{
+  width:100%;display:flex;align-items:center;gap:12px;
+  padding:13px 14px;background:none;border:none;text-align:left;cursor:pointer;
+}
+.eb-lead{
+  width:30px;height:30px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-d);font-size:15px;font-weight:800;
+}
+.eb-lead.lead-done{background:var(--lime)}
+.eb-lead.lead-active{background:var(--ink);color:#fff}
+.eb-lead.lead-upcoming{background:var(--card2);color:var(--ink3)}
+.eb-hdr-txt{flex:1;min-width:0}
+.eb-chev{flex-shrink:0;transition:transform .22s ease}
+.eb-chev.open{transform:rotate(180deg)}
 .eb-num{
-  font-family:var(--font-b);font-size:10px;font-weight:700;
-  color:var(--lime-text);letter-spacing:1px;margin-bottom:4px;
+  font-family:var(--font-b);font-size:9.5px;font-weight:700;
+  color:var(--lime-text);letter-spacing:1px;text-transform:uppercase;margin-bottom:1px;
 }
 .eb-name{
-  font-family:var(--font-d);font-size:26px;font-weight:800;
-  letter-spacing:-0.6px;line-height:1;color:var(--ink);text-transform:uppercase;
+  font-family:var(--font-d);font-size:20px;font-weight:800;
+  letter-spacing:-0.4px;line-height:1;color:var(--ink);text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+.exb-active .eb-name{font-size:24px}
 .eb-name.fst{color:var(--lime-text)}
-.eb-body{padding:12px 12px 14px}
+.eb-sub{font-family:var(--font-b);font-size:11px;color:var(--ink3);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exb-active .eb-sub{color:var(--lime-text);font-weight:700}
+.eb-body{padding:4px 12px 14px}
 .eb-top{display:none}.eb-meta{display:none}.eb-done{display:none}
 .eb-note{
   font-family:var(--font-b);font-size:10px;color:var(--lime-text);
@@ -585,8 +604,6 @@ button{cursor:pointer}
   font-family:var(--font-b);letter-spacing:0.3px;margin-top:10px;
   width:100%;justify-content:center;
 }
-/* Up next: full exercise cards, slightly dimmed */
-.exb-upcoming{opacity:0.72}
 /* Session bottom bar */
 .sp-bot{
   flex-shrink:0;background:var(--bg);
@@ -678,6 +695,53 @@ button{cursor:pointer}
 .eprow.picked{background:var(--gbg);color:var(--gd)}
 
 /* ── WORKOUTS ── */
+/* i-lift design language: remap legacy tokens onto the i-lift palette,
+   scoped to the Workouts tab so History/Calendar/Stats stay untouched. */
+#pgWork{
+  --black:var(--ink);
+  --text:var(--ink);
+  --green:var(--ink);        /* solid fills/focus → ink (matches home/session) */
+  --gd:var(--lime-text);     /* accent text */
+  --gl:var(--lime);
+  --gbg:var(--lime-soft);    /* accent surfaces */
+  --light:var(--card2);
+  --border:var(--line);
+  --muted:var(--ink3);
+  --off:var(--bg);
+  --shadow:0 1px 8px rgba(0,0,0,.05);
+  background:var(--bg);
+}
+/* Headings → Barlow Condensed, uppercase */
+#pgWork .pgtitle{
+  font-family:var(--font-d);font-size:30px;font-weight:800;
+  letter-spacing:-0.5px;text-transform:uppercase;color:var(--ink);
+}
+#pgWork .wiz-title{
+  font-family:var(--font-d);font-size:22px;font-weight:800;
+  letter-spacing:-0.3px;text-transform:uppercase;
+}
+#pgWork .w3-name,#pgWork .w3-day-name{
+  font-family:var(--font-d);font-weight:800;text-transform:uppercase;letter-spacing:-0.3px;
+}
+#pgWork .sec{
+  font-family:var(--font-b);font-size:10px;font-weight:700;
+  letter-spacing:1.2px;color:var(--ink3);
+}
+/* Lime accent for active wizard progress + day pills */
+#pgWork .wiz-pseg.act{background:var(--lime)}
+#pgWork .w3-wpill.custom{border-color:var(--lime-edge);color:var(--lime-text)}
+/* Softer corners to match home/session cards */
+#pgWork .tabs{background:var(--card2);border-radius:12px}
+#pgWork .tab{font-family:var(--font-b);font-weight:700;letter-spacing:0.3px}
+#pgWork .tab.active{background:var(--ink);color:#fff}
+#pgWork .card-b{background:var(--card);border:1px solid var(--line);border-radius:16px}
+#pgWork .fi{background:var(--bg);border:1.5px solid var(--line2);border-radius:13px}
+#pgWork .fi:focus{border-color:var(--ink)}
+#pgWork .btn{border-radius:14px;font-family:var(--font-b);font-weight:800}
+#pgWork .btn-g{font-family:var(--font-d);font-size:16px;letter-spacing:0.5px;text-transform:uppercase}
+#pgWork .st-box{background:var(--card);border:1px solid var(--line);border-radius:14px}
+#pgWork .st-v{font-family:var(--font-d)}
+
 .wp-body{padding:14px 16px}
 
 /* Wizard */
