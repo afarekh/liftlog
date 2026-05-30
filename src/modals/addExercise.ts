@@ -20,6 +20,22 @@ export function registerWizHandlers(
   _renderWizDay = render;
 }
 
+function renderAEMTray(): void {
+  const tray = document.getElementById('aemTray');
+  if (!tray) return;
+  const existingExes: string[] = aemCtx === 'wiz' && _getWizDayExercises
+    ? _getWizDayExercises().map((e: any) => e.name)
+    : [];
+  const allNames = [...new Set([...existingExes, ...aemPicked])];
+  if (!allNames.length) { tray.style.display = 'none'; return; }
+  tray.style.display = 'block';
+  const chips = allNames.map(n => {
+    const isNew = aemPicked.includes(n) && !existingExes.includes(n);
+    return `<span class="aem-tray-chip" style="${isNew ? 'background:var(--lime-soft);color:var(--lime-text)' : ''}">${n}</span>`;
+  }).join('');
+  tray.innerHTML = `<div class="aem-tray-label">In this day · ${allNames.length} exercise${allNames.length !== 1 ? 's' : ''}</div><div class="aem-tray-chips">${chips}</div>`;
+}
+
 export function openAEM(ctx: string): void {
   setAemCtx(ctx);
   setAemMG('Back');
@@ -36,6 +52,7 @@ export function openAEM(ctx: string): void {
   if (aem) aem.classList.add('open');
   renderAEMgrid();
   renderAEMlist();
+  renderAEMTray();
 }
 
 export function closeAEM(): void {
@@ -100,6 +117,7 @@ export function toggleAEM(name: string, muscle: string): void {
     if (muscle) aemPickedMuscles[name] = muscle;
   }
   renderAEMlist();
+  renderAEMTray();
 }
 
 export function confirmAEM(): void {

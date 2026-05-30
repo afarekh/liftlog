@@ -1,6 +1,6 @@
 import './styles/main.css';
 
-import { ilToast, ilConfirm } from './utils/ui';
+import { ilToast, ilConfirm, ilDatePick } from './utils/ui';
 import { loadS } from './services/storage';
 import { firebaseSync } from './services/firebase';
 import { registerRenderers, goPage } from './nav/router';
@@ -14,7 +14,7 @@ import {
   renderWizStep2, renderWizWeekCircles, toggleWizWeek, renderWizDayCircles,
   renderWizDay, wizSelDay, wizSetDayName, wizToggleSS, wizAdjSets, wizToggleFST7, wizDelEx,
   renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz, triggerImport, handleImport,
-  startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz,
+  startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz, deleteSavedProg,
 } from './pages/workouts/wizard';
 import { handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession, resumeSession } from './session/index';
 import { renderSP, setV, tickSet, addSet, delSet, nextExercise, toggleEx } from './session/render';
@@ -100,7 +100,7 @@ Object.assign(window, {
   renderWizStep2, renderWizWeekCircles, toggleWizWeek, renderWizDayCircles,
   renderWizDay, wizSelDay, wizSetDayName, wizToggleSS, wizAdjSets, wizToggleFST7, wizDelEx,
   renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz, triggerImport, handleImport,
-  startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz,
+  startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz, deleteSavedProg,
 
   // Session
   handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession, resumeSession,
@@ -115,7 +115,7 @@ Object.assign(window, {
   aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom,
 
   // UI utilities
-  ilToast, ilConfirm,
+  ilToast, ilConfirm, ilDatePick,
 
   // App
   exitApp,

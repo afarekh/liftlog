@@ -3,7 +3,7 @@ import { EX, MG_ORDER } from '../../data/exercises';
 import { fmtD, parseYMD, todayYMD, DOW_3 } from '../../utils/date';
 import { saveS } from '../../services/storage';
 import { cloudSave } from '../../services/firebase';
-import { ilToast } from '../../utils/ui';
+import { ilToast, ilConfirm, ilDatePick } from '../../utils/ui';
 import { openAEM, registerWizHandlers } from '../../modals/addExercise';
 import { renderHome } from '../home';
 import { renderCal } from '../calendar';
@@ -54,7 +54,6 @@ export function wizNext(from: number): void {
     const name = nameEl?.value.trim() || '';
     if (!name) { ilToast('Enter a program name.', 'error'); return; }
     patchWiz({ name });
-    if (!wiz.startDate) { ilToast('Select a start date.', 'error'); return; }
     const requiredRest = 7 - (wiz.days || 5);
     if ((wiz.restDays || []).length < requiredRest) return;
     const numDays = wiz.days || 5;
@@ -299,6 +298,19 @@ export function setWizDayExercises(exes: ExerciseEntry[]): void {
   saveS();
 }
 
+function muscleVolume(days: typeof wiz.dayPrograms): Record<string, number> {
+  const counts: Record<string, number> = {};
+  days.forEach(d => d.exercises.forEach(e => { counts[e.muscle] = (counts[e.muscle] || 0) + (e.sets as number); }));
+  return counts;
+}
+
+function renderVolStrip(weeklyVol: Record<string, number>): string {
+  const entries = Object.entries(weeklyVol).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return '';
+  const chips = entries.map(([m, s]) => `<span class="wk-vol-chip">${m} · ${s}</span>`).join('');
+  return `<div class="wk-vol-strip"><div class="wk-vol-eyebrow">Weekly Sets</div><div class="wk-vol-chips">${chips}</div></div>`;
+}
+
 function ssClass(exes: ExerciseEntry[], i: number): string {
   const above = i > 0 && exes[i - 1].ssLink;
   const below = exes[i].ssLink;
@@ -324,7 +336,9 @@ export function renderWizDay(): void {
   const exes = getWizDayExercises();
   const counts: Record<string, number> = {};
   exes.forEach(e => { counts[e.muscle] = (counts[e.muscle] || 0) + (e.sets as number); });
-  const badges = Object.entries(counts).map(([m, s]) => `<span style="background:#DCFCE7;color:var(--gd);border-radius:20px;padding:3px 9px;font-size:9px;font-weight:800">${m} ${s} sets</span>`).join('');
+  const badges = Object.entries(counts).map(([m, s]) => `<span class="wk-vol-chip">${m} · ${s}</span>`).join('');
+  const weeklyVol = muscleVolume(wiz.dayPrograms || []);
+  const volStripHTML = renderVolStrip(weeklyVol);
 
   const exRows = exes.length ? exes.map((e, i) => {
     const cls = ssClass(exes, i);
@@ -364,7 +378,8 @@ export function renderWizDay(): void {
   wizDayBodyEl.innerHTML = `
     <span class="sec">Day Name</span>
     <input class="fi" value="${day.name || 'Day ' + (wiz.activeDay + 1)}" oninput="wizSetDayName(this.value)">
-    ${badges ? `<div id="wizBadges" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">${badges}</div>` : '<div id="wizBadges" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>'}
+    <div id="wizBadges" class="wk-vol-chips" style="margin-bottom:10px">${badges}</div>
+    <div id="wizVolStrip">${volStripHTML}</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span class="sec" style="margin:0">Exercises · ${wkLabel}Day ${wiz.activeDay + 1}</span>
     </div>
@@ -394,11 +409,16 @@ export function wizToggleSS(i: number): void {
 
 function updateWizBadges(): void {
   const el = document.getElementById('wizBadges');
-  if (!el) return;
-  const exes = getWizDayExercises();
-  const counts: Record<string, number> = {};
-  exes.forEach(e => { counts[e.muscle] = (counts[e.muscle] || 0) + (e.sets as number); });
-  el.innerHTML = Object.entries(counts).map(([m, s]) => `<span style="background:#DCFCE7;color:var(--gd);border-radius:20px;padding:3px 9px;font-size:9px;font-weight:800">${m} ${s} sets</span>`).join('');
+  if (el) {
+    const exes = getWizDayExercises();
+    const counts: Record<string, number> = {};
+    exes.forEach(e => { counts[e.muscle] = (counts[e.muscle] || 0) + (e.sets as number); });
+    el.innerHTML = Object.entries(counts).map(([m, s]) => `<span class="wk-vol-chip">${m} · ${s}</span>`).join('');
+  }
+  const stripEl = document.getElementById('wizVolStrip');
+  if (stripEl) {
+    stripEl.innerHTML = renderVolStrip(muscleVolume(wiz.dayPrograms || []));
+  }
 }
 
 export function wizAdjSets(i: number, delta: number): void {
@@ -429,8 +449,6 @@ export function wizDelEx(i: number): void {
 
 let w3OpenDays = new Set<number>();
 export function renderWizStep3(): void {
-  const sd = parseYMD(wiz.startDate || todayYMD());
-  const endD = new Date(sd); endD.setDate(sd.getDate() + (wiz.weeks || 8) * 7);
   const days = wiz.dayPrograms || [];
   const weeks = wiz.weeks || 8;
 
@@ -448,8 +466,7 @@ export function renderWizStep3(): void {
   const MG_BG: Record<string, string> = {Back:'#DBEAFE',Chest:'#FEE2E2',Legs:'#FEF3C7',Shoulders:'#EDE9FE',Biceps:'#CFFAFE',Triceps:'#FCE7F3',Core:'#D1FAE5',Calves:'#FFEDD5',Forearms:'#F1F5F9'};
   const MG_TEXT: Record<string, string> = {Back:'#1D4ED8',Chest:'#DC2626',Legs:'#D97706',Shoulders:'#7C3AED',Biceps:'#0E7490',Triceps:'#BE185D',Core:'#065F46',Calves:'#C2410C',Forearms:'#475569'};
 
-  const volCounts: Record<string, number> = {};
-  days.forEach(d => d.exercises.forEach(e => { volCounts[e.muscle] = (volCounts[e.muscle] || 0) + (e.sets as number); }));
+  const volCounts = muscleVolume(days);
   const volSorted = Object.entries(volCounts).sort((a, b) => b[1] - a[1]);
   const volRows = volSorted.map(([m, s]) => `
     <div class="w3-vrow">
@@ -534,7 +551,7 @@ export function renderWizStep3(): void {
         <span class="w3-chip">${(wiz.restDays || []).length} rest days</span>
         <span class="w3-chip">${totalSessions} sessions</span>
       </div>
-      <div class="w3-dates">${fmtD(sd)} → ${fmtD(endD)}</div>
+      <div class="w3-dates">Pick your start date when you activate.</div>
     </div>
     <span class="sec">Summary</span>
     <div class="w3-strip">
@@ -599,7 +616,7 @@ function wizBuildSchedule(): Record<number, number> {
 
 function wizSaveToLibrary(name: string, schedule: Record<number, number>): void {
   const savedProgs = JSON.parse(localStorage.getItem('ll_saved_progs') || '[]');
-  const progData = { name, weeks: wiz.weeks || 8, days: wiz.days || 5, startDate: wiz.startDate || todayYMD(), schedule, dayPrograms: wiz.dayPrograms, weekOverrides: wiz.weekOverrides || {} };
+  const progData = { name, weeks: wiz.weeks || 8, days: wiz.days || 5, startDate: '', schedule, dayPrograms: wiz.dayPrograms, weekOverrides: wiz.weekOverrides || {} };
   const idx = savedProgs.findIndex((p: any) => p.name === name);
   if (idx >= 0) savedProgs[idx] = progData;
   else savedProgs.push(progData);
@@ -631,23 +648,25 @@ export function saveWiz(): void {
 export function activateWiz(): void {
   const name = wizValidate();
   if (!name) return;
-  const schedule = wizBuildSchedule();
-  const numDays = wiz.dayPrograms.length;
-  FST7.length = numDays;
-  wiz.dayPrograms.forEach((d, i) => {
-    FST7[i] = {
-      day: d.name || 'Day ' + (i + 1),
-      name: d.name || 'Day ' + (i + 1),
-      muscles: [...new Set(d.exercises.map(e => e.muscle))],
-      exercises: d.exercises.map(e => ({ ...e })),
-    };
+  ilDatePick(ds => {
+    const schedule = wizBuildSchedule();
+    const numDays = wiz.dayPrograms.length;
+    FST7.length = numDays;
+    wiz.dayPrograms.forEach((d, i) => {
+      FST7[i] = {
+        day: d.name || 'Day ' + (i + 1),
+        name: d.name || 'Day ' + (i + 1),
+        muscles: [...new Set(d.exercises.map(e => e.muscle))],
+        exercises: d.exercises.map(e => ({ ...e })),
+      };
+    });
+    wizSaveToLibrary(name, schedule);
+    S.prog = { active: true, name, weeks: wiz.weeks || 8, startDate: ds, schedule, isCustom: true, weekOverrides: wiz.weekOverrides || {}, dayPrograms: wiz.dayPrograms };
+    setWiz({ name: '', startDate: '', weeks: 8, days: 5, restDays: [2, 6], dayPrograms: [], activeDay: 0, activeWeek: null, activeWeeks: [], weekOverrides: {}, step: 1 });
+    saveS(); renderHome(); renderCal(); renderStats();
+    (window as any).goPage(0);
+    setTimeout(() => ilToast(`"${name}" activated!`, 'success'), 200);
   });
-  wizSaveToLibrary(name, schedule);
-  S.prog = { active: true, name, weeks: wiz.weeks || 8, startDate: wiz.startDate || todayYMD(), schedule, isCustom: true, weekOverrides: wiz.weekOverrides || {}, dayPrograms: wiz.dayPrograms };
-  setWiz({ name: '', startDate: '', weeks: 8, days: 5, restDays: [2, 6], dayPrograms: [], activeDay: 0, activeWeek: null, activeWeeks: [], weekOverrides: {}, step: 1 });
-  saveS(); renderHome(); renderCal(); renderStats();
-  (window as any).goPage(0);
-  setTimeout(() => ilToast(`"${name}" activated!`, 'success'), 200);
 }
 
 export function triggerImport(): void {
@@ -756,14 +775,19 @@ export function renderLibrary(): void {
   }
 
   const customCards = savedProgs.map((p: any, pi: number) => `
-    <div class="pd-crd" style="${p.name === activeName ? 'border:1.5px solid var(--green)' : ''}">
+    <div class="pd-crd" style="${p.name === activeName ? 'border:1.5px solid var(--lime-edge)' : ''}">
       <div class="pd-hdr">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
           <div>
             <div class="pd-day">Custom Program</div>
             <div class="pd-name">${p.name}</div>
           </div>
-          ${p.name === activeName ? '<span style="background:#DCFCE7;color:var(--gd);border-radius:20px;padding:3px 10px;font-size:9px;font-weight:800">ACTIVE</span>' : ''}
+          <div style="display:flex;align-items:center;gap:6px">
+            ${p.name === activeName ? '<span class="wk-vol-chip">ACTIVE</span>' : ''}
+            <button onclick="deleteSavedProg(${pi})" title="Delete program" style="width:28px;height:28px;border:1px solid var(--line2);background:var(--bg);border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#E5484D;flex-shrink:0">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
         </div>
         <div style="margin-bottom:6px">${chip2(p.weeks + 'w')}${chip2(p.days + 'days/wk')}</div>
         <div>${(p.dayPrograms || []).map((d: any) => chip2(d.name || 'Day', false)).join('')}</div>
@@ -789,13 +813,34 @@ export function activateSavedProg(pi: number): void {
   const p = savedProgs[pi];
   if (!p) { ilToast('Program not found.', 'error'); return; }
   if (S.prog && S.prog.name === p.name) { ilToast(`"${p.name}" is already active.`, 'info'); return; }
-  FST7.length = 0;
-  (p.dayPrograms || []).forEach((d: any, i: number) => {
-    FST7.push({ day: d.name || 'Day ' + (i + 1), name: d.name || 'Day ' + (i + 1), muscles: [...new Set((d.exercises || []).map((e: any) => e.muscle))] as string[], exercises: (d.exercises || []).map((e: any) => ({ ...e })) });
+  ilDatePick(ds => {
+    FST7.length = 0;
+    (p.dayPrograms || []).forEach((d: any, i: number) => {
+      FST7.push({ day: d.name || 'Day ' + (i + 1), name: d.name || 'Day ' + (i + 1), muscles: [...new Set((d.exercises || []).map((e: any) => e.muscle))] as string[], exercises: (d.exercises || []).map((e: any) => ({ ...e })) });
+    });
+    S.prog = { active: true, name: p.name, weeks: p.weeks || 8, days: p.days || 5, startDate: ds, schedule: p.schedule || {}, isCustom: true, weekOverrides: p.weekOverrides || {}, dayPrograms: p.dayPrograms };
+    saveS(); renderHome(); renderCal(); renderStats(); renderLibrary();
+    ilToast(`"${p.name}" activated!`, 'success');
   });
-  S.prog = { active: true, name: p.name, weeks: p.weeks || 8, days: p.days || 5, startDate: todayYMD(), schedule: p.schedule || {}, isCustom: true, weekOverrides: p.weekOverrides || {}, dayPrograms: p.dayPrograms };
-  saveS(); renderHome(); renderCal(); renderStats(); renderLibrary();
-  ilToast(`"${p.name}" activated!`, 'success');
+}
+
+export function deleteSavedProg(pi: number): void {
+  const savedProgs = JSON.parse(localStorage.getItem('ll_saved_progs') || '[]');
+  const p = savedProgs[pi];
+  if (!p) return;
+  ilConfirm(`Delete "${p.name}"?`, () => {
+    savedProgs.splice(pi, 1);
+    localStorage.setItem('ll_saved_progs', JSON.stringify(savedProgs));
+    cloudSave();
+    if (S.prog && S.prog.name === p.name) {
+      S.prog = null;
+      FST7.length = 0;
+      saveS();
+      renderHome(); renderCal(); renderStats();
+    }
+    renderLibrary();
+    ilToast(`"${p.name}" deleted.`, 'success');
+  }, 'Delete', true);
 }
 
 export function loadProgToWiz(idx: number): void {

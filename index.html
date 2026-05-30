@@ -78,7 +78,7 @@
 <!-- ═══════ WORKOUTS ═══════ -->
 <div id="pgWork" class="page">
   <div class="pghdr">
-    <div class="pgtitle">Workouts</div>
+    <div class="pgtitle">Plans</div>
     <div class="tabs">
       <button class="tab active" id="wtab0" onclick="switchWTab(0)">Custom</button>
       <button class="tab" id="wtab1" onclick="switchWTab(1)">Library</button>
@@ -103,12 +103,6 @@
     <div id="wiz1" class="wp-body">
       <span class="sec">Program Name</span>
       <input id="wProgName" class="fi" placeholder="e.g. My Push/Pull Split" oninput="wizSetName(this.value)">
-
-      <span class="sec">Start Date</span>
-      <div class="card-b" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;cursor:pointer" id="wStartDateBox" onclick="pickWizDate()">
-        <div style="font-size:14px;font-weight:800" id="wStartDateLbl">Tap to select</div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div>
@@ -269,8 +263,8 @@
     Home<div class="nb-dot"></div>
   </button>
   <button class="nb" id="nb2" onclick="goPage(2)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M3 8h4M17 8h4M3 16h4M17 16h4"/></svg>
-    Workouts<div class="nb-dot"></div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M3 10V14M21 10V14M6.5 6.5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2M17.5 6.5a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2M3 10a1.5 1.5 0 0 0-1.5 1.5v1A1.5 1.5 0 0 0 3 14M21 10a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 21 14"/></svg>
+    Plans<div class="nb-dot"></div>
   </button>
   <button class="nb" id="nb3" onclick="goPage(3)">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M3 5h4v3a3 3 0 0 1-3 0V5z"/><path d="M21 5h-4v3a3 3 0 0 0 3 0V5z"/><path d="M10 14h4l-1 4h-2z"/><path d="M8 20h8"/></svg>
@@ -410,7 +404,19 @@
       </div>
       <button class="btn btn-g" style="font-size:13px;padding:11px" onclick="confirmAEMCustom()">✓ Add Exercise</button>
     </div>
+    <div id="aemTray" class="aem-tray" style="display:none"></div>
     <button class="btn btn-g" style="font-size:13px;padding:12px" onclick="confirmAEM()">Add Selected →</button>
+  </div>
+</div>
+
+<!-- ═══════ DATE PICK SHEET ═══════ -->
+<div id="ilDatePick" class="il-confirm-bg">
+  <div class="il-datepick-sheet">
+    <div class="il-confirm-handle"></div>
+    <div class="il-confirm-brand">i-lift<span class="il-confirm-dot"></span></div>
+    <div class="il-datepick-title">When do you start?</div>
+    <div id="ilDatePickGrid" class="il-datepick-grid"></div>
+    <button id="ilDatePickCancel" class="il-datepick-cancel">Cancel</button>
   </div>
 </div>
 
