@@ -1038,3 +1038,26 @@ button{cursor:pointer}
   border-radius:13px;font-family:var(--font-d);font-size:17px;
   font-weight:800;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;
 }
+
+/* ── EXIT SCREEN ── */
+#ilExitScreen{
+  position:fixed;inset:0;z-index:900;
+  background:var(--ink);color:#fff;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;
+}
+#ilExitScreen.show{display:flex}
+.il-exit-logo{
+  font-family:var(--font-d);font-size:34px;font-weight:800;
+  text-transform:uppercase;letter-spacing:-0.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.il-exit-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block}
+.il-exit-msg{font-family:var(--font-d);font-size:24px;font-weight:700;margin-top:18px}
+.il-exit-sub{font-family:var(--font-b);font-size:13px;opacity:0.6;margin-top:6px}
+.il-exit-reopen{
+  margin-top:26px;background:var(--lime);color:var(--ink);border:none;
+  border-radius:14px;padding:14px 30px;cursor:pointer;
+  font-family:var(--font-d);font-size:16px;font-weight:800;
+  text-transform:uppercase;letter-spacing:0.5px;
+}

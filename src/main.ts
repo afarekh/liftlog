@@ -23,9 +23,15 @@ import { openSM, closeSM, smSelMG, renderSMlist, filterSwap, smPickEx, renderMan
 import { openAEM, closeAEM, renderAEMgrid, renderAEMlist, toggleAEM, confirmAEM, aemSelMG, aemSelCustomMG, toggleAEMCustom, renderAEMCustomPills, confirmAEMCustom } from './modals/addExercise';
 
 function exitApp(): void {
-  // Show instruction immediately (window.close() is unreliable on mobile PWA)
-  ilToast('Press the home button to exit', 'info');
-  setTimeout(() => { try { window.close(); } catch (_) {} }, 250);
+  ilConfirm('Exit i-lift?', () => {
+    // window.close() only works for windows opened by script — it's a no-op for
+    // installed PWAs and normal tabs. Attempt it, then fall back to an exit screen.
+    try { window.close(); } catch (_) {}
+    setTimeout(() => {
+      const el = document.getElementById('ilExitScreen');
+      if (el) el.classList.add('show');
+    }, 150);
+  }, 'Exit', false);
 }
 
 function init(): void {
