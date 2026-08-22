@@ -1183,3 +1183,42 @@ button{cursor:pointer}
 }
 .il-acct-secondary:active{background:var(--card2)}
 .il-acct-danger{color:var(--il-red);border-color:#F3D0D1}
+
+/* ── IMPORT PROGRAM ── */
+.il-imp-sheet{max-height:88vh;overflow-y:auto}
+.il-imp-text{
+  width:100%;min-height:120px;resize:vertical;
+  padding:11px 12px;border-radius:12px;
+  background:var(--card);border:1px solid var(--line2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11.5px;line-height:1.45;color:var(--ink);
+  margin-bottom:10px;
+}
+.il-imp-text:focus{outline:none;border-color:var(--lime-edge)}
+.il-imp-preview:empty{display:none}
+.imp-block{
+  padding:11px 13px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);
+  margin-bottom:9px;
+}
+.imp-block-t{
+  font-family:var(--font-d);font-size:15px;font-weight:700;
+  color:var(--ink);margin-bottom:5px;
+}
+.imp-good{border-color:var(--lime-edge);background:var(--lime-soft)}
+.imp-bad{border-color:#F3D0D1;background:#FEF6F6}
+.imp-warn{border-color:#F0DCB0;background:#FEFAF2}
+.imp-line{font-size:12px;line-height:1.5;color:var(--ink2)}
+.imp-tag{
+  font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  background:var(--ink);color:var(--bg);padding:2px 6px;border-radius:5px;
+  vertical-align:middle;
+}
+.imp-tag-q{background:var(--ink3)}
+.imp-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.imp-chip{
+  font-size:10px;font-weight:700;color:var(--ink2);
+  background:var(--bg);border:1px solid var(--line2);
+  padding:3px 7px;border-radius:6px;
+}
+.imp-note{font-size:11.5px;color:var(--ink3);text-align:center;margin:4px 0 10px}

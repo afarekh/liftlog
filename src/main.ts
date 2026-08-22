@@ -4,6 +4,7 @@ import { ilToast, ilConfirm, ilDatePick } from './utils/ui';
 import { loadS } from './services/storage';
 import { initSync } from './services/firebase';
 import { initAccount, openAccount, closeAccount } from './pages/account';
+import { initImport, openImport, closeImport } from './pages/importProgram';
 import { registerRenderers, goPage } from './nav/router';
 import { renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram, selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard, toggleTodayCardExes } from './pages/home';
 import { renderCal, selectDay, renderCalDet, toggleCalExp, showDayOpts, confirmAct, initCalendarDelegation } from './pages/calendar';
@@ -14,7 +15,7 @@ import {
   initWizardHandlers, goWiz, wizSetName, wizNext, wAdj, renderRestGrid, toggleRest, pickWizDate,
   renderWizStep2, renderWizWeekCircles, toggleWizWeek, renderWizDayCircles,
   renderWizDay, wizSelDay, wizSetDayName, wizToggleSS, wizAdjSets, wizToggleFST7, wizDelEx,
-  renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz, triggerImport, handleImport,
+  renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz,
   startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz, deleteSavedProg,
 } from './pages/workouts/wizard';
 import { handleSessionBtn, openSession, closeSession, completeWorkout, toggleTimer, restartSession, resumeSession } from './session/index';
@@ -49,6 +50,7 @@ function init(): void {
   initWizardHandlers();
   initCalendarDelegation();
   initAccount();
+  initImport();
 
   // Buttons that have no onclick attribute and need event listeners
   document.getElementById('spDoneBtn')?.addEventListener('click', completeWorkout);
@@ -101,7 +103,7 @@ Object.assign(window, {
   goWiz, wizSetName, wizNext, wAdj, renderRestGrid, toggleRest, pickWizDate,
   renderWizStep2, renderWizWeekCircles, toggleWizWeek, renderWizDayCircles,
   renderWizDay, wizSelDay, wizSetDayName, wizToggleSS, wizAdjSets, wizToggleFST7, wizDelEx,
-  renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz, triggerImport, handleImport,
+  renderWizStep3, w3ToggleDay, w3SelWeek, saveWiz, activateWiz,
   startWizDrag, renderLibrary, activateSavedProg, loadProgToWiz, deleteSavedProg,
 
   // Session
@@ -121,6 +123,9 @@ Object.assign(window, {
 
   // Account & sync
   openAccount, closeAccount,
+
+  // Program import
+  openImport, closeImport,
 
   // App
   exitApp,

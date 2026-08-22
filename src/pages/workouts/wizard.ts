@@ -669,33 +669,6 @@ export function activateWiz(): void {
   });
 }
 
-export function triggerImport(): void {
-  const el = document.getElementById('importFile') as HTMLInputElement | null;
-  if (el) el.click();
-}
-
-export function handleImport(e: Event): void {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse((ev.target as FileReader).result as string);
-      const name = prompt('Program name:', data.name || 'Imported Program');
-      if (!name) return;
-      const dur = parseInt(prompt('Duration (weeks):', data.weeks || 8) || '8');
-      const start = prompt('Start date (YYYY-MM-DD):', todayYMD());
-      if (isNaN(dur) || !start) return;
-      S.prog = { active: true, name, weeks: dur, startDate: start, schedule: { 0: 0, 1: 1, 3: 2, 4: 3, 5: 4 } };
-      saveS(); renderHome(); renderCal(); renderStats();
-      (window as any).goPage(0);
-      ilToast(`"${name}" imported!`, 'success');
-    } catch (err) { ilToast('Invalid file.', 'error'); }
-  };
-  reader.readAsText(file);
-}
-
 export function initWizDrag(): void {
   const rows = document.querySelectorAll('#wizDayBody .erow');
   rows.forEach(row => {
