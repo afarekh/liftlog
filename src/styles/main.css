@@ -1226,3 +1226,7 @@ button{cursor:pointer}
   font-size:10px;color:var(--ink3);text-align:center;
   margin-top:8px;letter-spacing:.3px;
 }
+.il-acct-hint{
+  font-size:11px;line-height:1.5;color:var(--ink3);
+  text-align:center;margin:-4px 0 12px;
+}

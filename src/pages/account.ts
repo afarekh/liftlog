@@ -87,9 +87,14 @@ export function initAccount(): void {
   $('acctSignInBtn')?.addEventListener('click', () => signInGoogle());
   $('acctCloseBtn')?.addEventListener('click', closeAccount);
 
-  $('acctSyncBtn')?.addEventListener('click', () => {
-    syncNow();
-    ilToast('Syncing…', 'info');
+  $('acctSyncBtn')?.addEventListener('click', async () => {
+    const btn = $('acctSyncBtn') as HTMLButtonElement | null;
+    if (btn) { btn.disabled = true; btn.textContent = 'Syncing…'; }
+    await syncNow();
+    if (btn) { btn.disabled = false; btn.textContent = 'Sync now'; }
+    const s = getSyncStatus();
+    ilToast(s.state === 'synced' ? 'Synced' : (s.message || 'Could not sync'),
+            s.state === 'synced' ? 'success' : 'error');
   });
 
   $('acctSignOutBtn')?.addEventListener('click', () => {

@@ -14,8 +14,13 @@
  * or workout logs are lost.
  */
 const RELOAD_FLAG = 'll_freshness_reload';
+const CHECK_EVERY_MS = 10 * 60 * 1000;
+let _lastCheck = 0;
 
 export async function ensureFresh(): Promise<void> {
+  const now = Date.now();
+  if (now - _lastCheck < CHECK_EVERY_MS) return;
+  _lastCheck = now;
   try {
     const res = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) return;

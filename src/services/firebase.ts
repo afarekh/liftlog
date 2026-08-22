@@ -309,26 +309,14 @@ async function pullAndMerge(opts: { silent?: boolean } = {}): Promise<void> {
   }
 }
 
-let _lastPull = 0;
-const PULL_THROTTLE_MS = 30000;
-
 /**
- * Sync triggered by the app being opened or brought to the foreground.
- * Throttled, so flicking between apps does not cause a read each time.
+ * Sync the user asked for. This and the single pull at startup are the only
+ * reads the app performs — nothing syncs on a timer, on regaining focus, or in
+ * the background.
  */
-export function syncOnResume(): void {
+export async function syncNow(): Promise<void> {
   if (!_uid) return;
-  const now = Date.now();
-  if (now - _lastPull < PULL_THROTTLE_MS) return;
-  _lastPull = now;
-  void pullAndMerge({ silent: true });
-}
-
-/** Sync the user asked for. Always runs, and always reports what happened. */
-export function syncNow(): void {
-  if (!_uid) return;
-  _lastPull = Date.now();
-  void pullAndMerge();
+  await pullAndMerge();
 }
 
 // ── Auth ───────────────────────────────────────────────────────────────────
@@ -389,15 +377,10 @@ export function initSync(renders: RenderFns): void {
       user: { email: user.email || '', name: user.displayName || '', photo: user.photoURL || '' },
       message: '',
     });
-    _lastPull = Date.now();
     void pullAndMerge();
   });
 
-  // Sync when the app is opened or comes back to the foreground, and when the
-  // connection returns — not continuously.
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') syncOnResume();
-  });
-  window.addEventListener('focus', syncOnResume);
-  window.addEventListener('online', () => { _lastPull = 0; syncOnResume(); });
+  // Nothing else triggers a sync. Firestore's offline queue still flushes
+  // pending writes on its own when the connection returns, so edits made in
+  // the gym are not stranded by the absence of a listener here.
 }
