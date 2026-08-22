@@ -23,6 +23,7 @@ export interface ImportOverrideRule {
   forType?: ExerciseType;
   forMuscle?: string;
   match?: string;               // exercise name, case-insensitive
+  name?: string;                // replaces the movement (an exercise rotation)
   reps?: string;
   sets?: number;
   note?: string;
@@ -70,6 +71,11 @@ function toEntry(x: ImportExercise): ExerciseEntry {
   return e;
 }
 
+/**
+ * Rules always match against the exercise as written in the document, never
+ * against the result of an earlier rule. A rotation can therefore rename a
+ * movement while a later rule still targets it by its original name.
+ */
 function ruleMatches(r: ImportOverrideRule, src: ImportExercise): boolean {
   if (r.match && src.name.toLowerCase() !== r.match.toLowerCase()) return false;
   if (r.forMuscle && src.muscle.toLowerCase() !== r.forMuscle.toLowerCase()) return false;
@@ -88,6 +94,7 @@ function applyRules(day: ImportDay, rules: ImportOverrideRule[]): ExerciseEntry[
     if (hits.some(r => r.remove)) continue;
     const patched: ImportExercise = { ...src };
     for (const r of hits) {
+      if (r.name !== undefined) patched.name = r.name;
       if (r.reps !== undefined) patched.reps = r.reps;
       if (r.sets !== undefined) patched.sets = r.sets;
       if (r.note !== undefined) patched.note = patched.note ? patched.note + ' — ' + r.note : r.note;

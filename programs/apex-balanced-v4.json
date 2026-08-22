@@ -3,169 +3,449 @@
     "schemaVersion": 1,
     "name": "APEX BALANCED — 10-Week Recomp",
     "weeks": 10,
-    "restDays": [5, 6],
+    "restDays": [
+      5,
+      6
+    ],
     "days": [
       {
         "name": "Quads + Abs",
         "exercises": [
-          { "name": "Smith squat, feet forward", "muscle": "Quads", "type": "compound", "sets": 4, "reps": "6-8", "note": "[RP] rest-pause on final set. 3 ramp sets first. Feet ~30cm ahead of bar. Chest tall, hips straight down the rail, knees driving forward. If you feel glutes, hips drifted back. Rest 120s." },
-          { "name": "Seated leg press", "muscle": "Quads", "type": "compound", "sets": 2, "reps": "6-8", "note": "1 ramp set first. Feet low and narrow. Stop before lower back rounds. Rises to 4 working sets from week 7. Rest 120s." },
-          { "name": "Barbell back squat (rack)", "muscle": "Quads", "type": "compound", "sets": 2, "reps": "10-12", "note": "Weeks 1-5 ONLY. 10-12 always, never past 2 RIR. No spotter — pattern maintenance, not loading. Retires at the deload." },
-          { "name": "Leg extension", "muscle": "Quads", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 finisher. Terminal for quads. 30-45s rest, squeeze at lockout during rest. Load fixed across all 7." },
-          { "name": "Cable woodchop", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "superset": true, "note": "Superset with weighted crunch. No rest within the pair." },
-          { "name": "Weighted crunch", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "note": "45s between rounds." }
+          {
+            "name": "Smith squat, feet forward",
+            "muscle": "Quads",
+            "type": "compound",
+            "sets": 4,
+            "reps": "6-8",
+            "note": "[RP] rest-pause on final set. 3 ramp sets first. Feet ~30cm ahead of bar. Chest tall, hips straight down the rail, knees driving forward. If you feel glutes, hips drifted back. Rest 120s."
+          },
+          {
+            "name": "Seated leg press",
+            "muscle": "Quads",
+            "type": "compound",
+            "sets": 2,
+            "reps": "6-8",
+            "note": "1 ramp set first. Feet low and narrow. Stop before lower back rounds. Rises to 4 working sets from week 7. Rest 120s."
+          },
+          {
+            "name": "Barbell back squat (rack)",
+            "muscle": "Quads",
+            "type": "compound",
+            "sets": 2,
+            "reps": "10-12",
+            "note": "Weeks 1-5 ONLY. 10-12 always, never past 2 RIR. No spotter — pattern maintenance, not loading. Retires at the deload."
+          },
+          {
+            "name": "Leg extension",
+            "muscle": "Quads",
+            "type": "fst7",
+            "sets": 7,
+            "reps": "10-15",
+            "fst7": true,
+            "note": "FST-7 finisher. Terminal for quads. 30-45s rest, squeeze at lockout during rest. Load fixed across all 7."
+          },
+          {
+            "name": "Cable woodchop",
+            "muscle": "Abs",
+            "type": "abs",
+            "sets": 3,
+            "reps": "12-20",
+            "superset": true,
+            "note": "Superset with weighted crunch. No rest within the pair."
+          },
+          {
+            "name": "Weighted crunch",
+            "muscle": "Abs",
+            "type": "abs",
+            "sets": 3,
+            "reps": "12-20",
+            "note": "45s between rounds."
+          }
         ]
       },
       {
         "name": "Chest + Triceps + Abs",
         "exercises": [
-          { "name": "Incline barbell or DB press", "muscle": "Chest", "type": "compound", "sets": 3, "reps": "6-8", "note": "3 ramp sets first. Upper chest leads the day. Rest 120s." },
-          { "name": "Flat DB press or machine press", "muscle": "Chest", "type": "compound", "sets": 2, "reps": "6-8", "note": "[RP] rest-pause on final set. Machine is the better rest-pause vehicle if available." },
-          { "name": "Weighted dip", "muscle": "Chest", "type": "compound", "sets": 2, "reps": "6-8", "note": "Counted as chest — torso leaning forward, elbows flared slightly. Upright with elbows tucked makes it a triceps movement instead." },
-          { "name": "Pec deck or cable crossover", "muscle": "Chest", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 finisher. Terminal for chest. 30-45s rest." },
-          { "name": "Lying EZ-bar skullcrusher", "muscle": "Triceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Long head in the stretched position. Lower behind the forehead, not to the nose. Rest 60-90s." },
-          { "name": "Rope pushdown", "muscle": "Triceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "Lateral and medial heads." },
-          { "name": "Hanging leg raise", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "superset": true, "note": "Superset with cable crunch." },
-          { "name": "Cable crunch", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "note": "45s between rounds." }
+          {
+            "name": "Incline barbell or DB press",
+            "muscle": "Chest",
+            "type": "compound",
+            "sets": 3,
+            "reps": "6-8",
+            "note": "3 ramp sets first. Upper chest leads the day. Rest 120s."
+          },
+          {
+            "name": "Flat DB press or machine press",
+            "muscle": "Chest",
+            "type": "compound",
+            "sets": 2,
+            "reps": "6-8",
+            "note": "[RP] rest-pause on final set. Machine is the better rest-pause vehicle if available."
+          },
+          {
+            "name": "Weighted dip",
+            "muscle": "Chest",
+            "type": "compound",
+            "sets": 2,
+            "reps": "6-8",
+            "note": "Counted as chest — torso leaning forward, elbows flared slightly. Upright with elbows tucked makes it a triceps movement instead."
+          },
+          {
+            "name": "Pec deck or cable crossover",
+            "muscle": "Chest",
+            "type": "fst7",
+            "sets": 7,
+            "reps": "10-15",
+            "fst7": true,
+            "note": "FST-7 finisher. Terminal for chest. 30-45s rest."
+          },
+          {
+            "name": "Lying EZ-bar skullcrusher",
+            "muscle": "Triceps",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "note": "Long head in the stretched position. Lower behind the forehead, not to the nose. Rest 60-90s."
+          },
+          {
+            "name": "Rope pushdown",
+            "muscle": "Triceps",
+            "type": "isolation",
+            "sets": 2,
+            "reps": "8-12",
+            "note": "Lateral and medial heads."
+          },
+          {
+            "name": "Hanging leg raise",
+            "muscle": "Abs",
+            "type": "abs",
+            "sets": 3,
+            "reps": "12-20",
+            "superset": true,
+            "note": "Superset with cable crunch."
+          },
+          {
+            "name": "Cable crunch",
+            "muscle": "Abs",
+            "type": "abs",
+            "sets": 3,
+            "reps": "12-20",
+            "note": "45s between rounds."
+          }
         ]
       },
       {
         "name": "Back + Biceps",
         "exercises": [
-          { "name": "Chest-supported incline DB row", "muscle": "Back", "type": "compound", "sets": 3, "reps": "6-8", "note": "3 ramp sets first. Bench ~30°, chest down, row to the hips. Support lets the lats be the limiter and lets you reach real failure alone. Rest 120s." },
-          { "name": "Wide-grip pulldown or pull-up", "muscle": "Back", "type": "compound", "sets": 2, "reps": "6-8", "note": "[RP] rest-pause on final set." },
-          { "name": "Landmine row", "muscle": "Back", "type": "compound", "sets": 3, "reps": "6-8", "note": "Free-loaded row, placed second where load is lower. Anchored end shortens the lever vs a barbell; neutral grip is friendlier on the shoulder." },
-          { "name": "Straight-arm pulldown", "muscle": "Back", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 finisher. Rambod's own choice for back sevens. Terminal. 30-45s rest." },
-          { "name": "EZ-bar or barbell curl", "muscle": "Biceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "2 ramp sets first. Rest 60-90s." },
-          { "name": "Incline DB curl", "muscle": "Biceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "Stretched-position bias." },
-          { "name": "Hammer curl or machine preacher", "muscle": "Biceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "Hammer for brachialis/brachioradialis, preacher for the short head — pick by what looks thinner." }
+          {
+            "name": "Chest-supported incline DB row",
+            "muscle": "Back",
+            "type": "compound",
+            "sets": 3,
+            "reps": "6-8",
+            "note": "3 ramp sets first. Bench ~30°, chest down, row to the hips. Support lets the lats be the limiter and lets you reach real failure alone. Rest 120s."
+          },
+          {
+            "name": "Wide-grip pulldown or pull-up",
+            "muscle": "Back",
+            "type": "compound",
+            "sets": 2,
+            "reps": "6-8",
+            "note": "[RP] rest-pause on final set."
+          },
+          {
+            "name": "Landmine row",
+            "muscle": "Back",
+            "type": "compound",
+            "sets": 3,
+            "reps": "6-8",
+            "note": "Free-loaded row, placed second where load is lower. Anchored end shortens the lever vs a barbell; neutral grip is friendlier on the shoulder."
+          },
+          {
+            "name": "Straight-arm pulldown",
+            "muscle": "Back",
+            "type": "fst7",
+            "sets": 7,
+            "reps": "10-15",
+            "fst7": true,
+            "note": "FST-7 finisher. Rambod's own choice for back sevens. Terminal. 30-45s rest."
+          },
+          {
+            "name": "EZ-bar or barbell curl",
+            "muscle": "Biceps",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "note": "2 ramp sets first. Rest 60-90s."
+          },
+          {
+            "name": "Incline DB curl",
+            "muscle": "Biceps",
+            "type": "isolation",
+            "sets": 2,
+            "reps": "8-12",
+            "note": "Stretched-position bias."
+          },
+          {
+            "name": "Hammer curl or machine preacher",
+            "muscle": "Biceps",
+            "type": "isolation",
+            "sets": 2,
+            "reps": "8-12",
+            "note": "Hammer for brachialis/brachioradialis, preacher for the short head — pick by what looks thinner."
+          }
         ]
       },
       {
         "name": "Shoulders + Traps",
         "exercises": [
-          { "name": "Seated DB press or Smith shoulder press", "muscle": "Delts", "type": "compound", "sets": 3, "reps": "6-8", "note": "[RP] rest-pause on final set. 3 ramp sets first. Rest 120s." },
-          { "name": "Reverse pec deck", "muscle": "Delts", "type": "raise", "sets": 3, "reps": "15-20", "note": "WEAK POINT — placed second while fresh. Reps never leave 15-20. Rear delt does horizontal shoulder ABduction, not scapular retraction: arms move apart, shoulder blades stay still. Felt between the shoulder blades = too heavy, rhomboids taking over. Thumbs down or neutral, slight elbow bend, no end squeeze. Rest 45-60s." },
-          { "name": "Seated lateral raise", "muscle": "Delts", "type": "raise", "sets": 3, "reps": "12-20", "note": "Seated removes the body English. Rest 45-60s." },
-          { "name": "Standing cable lateral raise", "muscle": "Delts", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 finisher — ODD weeks. Even weeks swap to reverse pec deck. 30-45s rest." },
-          { "name": "Barbell or DB shrug", "muscle": "Traps", "type": "isolation", "sets": 5, "reps": "8-12", "note": "WEAK POINT. Full ROM: ears-to-shoulders, 2s hold at top, 3s lowering to a dead stretch. No rolling. Most people load 30% too heavy and lose half the range — that is why traps stall." },
-          { "name": "Behind-the-back barbell shrug or Smith shrug", "muscle": "Traps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Second trap angle. Bar behind the body keeps shoulders retracted." }
+          {
+            "name": "Seated DB press or Smith shoulder press",
+            "muscle": "Delts",
+            "type": "compound",
+            "sets": 3,
+            "reps": "6-8",
+            "note": "[RP] rest-pause on final set. 3 ramp sets first. Rest 120s."
+          },
+          {
+            "name": "Reverse pec deck",
+            "muscle": "Delts",
+            "type": "raise",
+            "sets": 3,
+            "reps": "15-20",
+            "note": "WEAK POINT — placed second while fresh. Reps never leave 15-20. Rear delt does horizontal shoulder ABduction, not scapular retraction: arms move apart, shoulder blades stay still. Felt between the shoulder blades = too heavy, rhomboids taking over. Thumbs down or neutral, slight elbow bend, no end squeeze. Rest 45-60s."
+          },
+          {
+            "name": "Seated lateral raise",
+            "muscle": "Delts",
+            "type": "raise",
+            "sets": 3,
+            "reps": "12-20",
+            "note": "Seated removes the body English. Rest 45-60s."
+          },
+          {
+            "name": "Standing cable lateral raise",
+            "muscle": "Delts",
+            "type": "fst7",
+            "sets": 7,
+            "reps": "10-15",
+            "fst7": true,
+            "note": "FST-7 finisher — ODD weeks. Even weeks swap to reverse pec deck. 30-45s rest."
+          },
+          {
+            "name": "Barbell or DB shrug",
+            "muscle": "Traps",
+            "type": "isolation",
+            "sets": 5,
+            "reps": "8-12",
+            "note": "WEAK POINT. Full ROM: ears-to-shoulders, 2s hold at top, 3s lowering to a dead stretch. No rolling. Most people load 30% too heavy and lose half the range — that is why traps stall."
+          },
+          {
+            "name": "Behind-the-back barbell shrug or Smith shrug",
+            "muscle": "Traps",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "note": "Second trap angle. Bar behind the body keeps shoulders retracted."
+          }
         ]
       },
       {
         "name": "Hams + Glutes + Arms",
         "exercises": [
-          { "name": "Seated leg curl", "muscle": "Hamstrings", "type": "isolation", "sets": 3, "reps": "8-12", "note": "3 ramp sets first. LEADS THE DAY deliberately — pre-exhausting the hams means the RDL needs far less load, keeping erectors intact for D1 and D3." },
-          { "name": "Barbell RDL", "muscle": "Hamstrings", "type": "compound", "sets": 3, "reps": "8-10", "note": "STOP AT 2 RIR — never to failure. 8-10 always. The only axially-loaded movement left in the block. A stimulus, not a contest." },
-          { "name": "Smith hip thrust", "muscle": "Glutes", "type": "compound", "sets": 2, "reps": "6-8", "note": "Glute-dominant." },
-          { "name": "Lying leg curl", "muscle": "Hamstrings", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 finisher. Terminal. Different curl variation to the seated by design. 30-45s rest." },
-          { "name": "DB curl", "muscle": "Biceps", "type": "isolation", "sets": 3, "reps": "8-12", "superset": true, "note": "Superset with overhead rope extension. No rest within the pair, 90s between rounds." },
-          { "name": "Overhead rope extension", "muscle": "Triceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Overhead rather than pushdown — loads the long head in the stretch." },
-          { "name": "Rope pushdown or bench dip", "muscle": "Triceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "" }
+          {
+            "name": "Seated leg curl",
+            "muscle": "Hamstrings",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "note": "3 ramp sets first. LEADS THE DAY deliberately — pre-exhausting the hams means the RDL needs far less load, keeping erectors intact for D1 and D3."
+          },
+          {
+            "name": "Barbell RDL",
+            "muscle": "Hamstrings",
+            "type": "compound",
+            "sets": 3,
+            "reps": "8-10",
+            "note": "STOP AT 2 RIR — never to failure. 8-10 always. The only axially-loaded movement left in the block. A stimulus, not a contest."
+          },
+          {
+            "name": "Smith hip thrust",
+            "muscle": "Glutes",
+            "type": "compound",
+            "sets": 2,
+            "reps": "6-8",
+            "note": "Glute-dominant."
+          },
+          {
+            "name": "Lying leg curl",
+            "muscle": "Hamstrings",
+            "type": "fst7",
+            "sets": 7,
+            "reps": "10-15",
+            "fst7": true,
+            "note": "FST-7 finisher. Terminal. Different curl variation to the seated by design. 30-45s rest."
+          },
+          {
+            "name": "DB curl",
+            "muscle": "Biceps",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "superset": true,
+            "note": "Superset with overhead rope extension. No rest within the pair, 90s between rounds."
+          },
+          {
+            "name": "Overhead rope extension",
+            "muscle": "Triceps",
+            "type": "isolation",
+            "sets": 3,
+            "reps": "8-12",
+            "note": "Overhead rather than pushdown — loads the long head in the stretch."
+          },
+          {
+            "name": "Rope pushdown or bench dip",
+            "muscle": "Triceps",
+            "type": "isolation",
+            "sets": 2,
+            "reps": "8-12",
+            "note": ""
+          }
         ]
       }
     ],
     "weekOverrides": [
       {
-        "weeks": [4, 9],
+        "weeks": [
+          4,
+          9
+        ],
         "label": "Joint back-off",
         "rules": [
-          { "forType": "compound", "reps": "10-12", "note": "JOINT BACK-OFF WEEK — compounds at 10-12" },
-          { "match": "Barbell RDL", "reps": "8-10" },
-          { "match": "Barbell back squat (rack)", "reps": "10-12" }
+          {
+            "forType": "compound",
+            "reps": "10-12",
+            "note": "JOINT BACK-OFF WEEK — compounds at 10-12"
+          },
+          {
+            "match": "Barbell RDL",
+            "reps": "8-10"
+          },
+          {
+            "match": "Barbell back squat (rack)",
+            "reps": "10-12"
+          }
         ]
       },
       {
-        "weeks": [6],
+        "weeks": [
+          6
+        ],
         "label": "Deload",
         "rules": [
-          { "forType": "fst7", "remove": true },
-          { "match": "Barbell back squat (rack)", "remove": true },
-          { "forType": "compound", "reps": "12-15", "note": "DELOAD — ~55% of week 5 loads, stop at 4+ RIR, no failure, no rest-pause, no ramp sets" },
-          { "forType": "isolation", "reps": "15-20", "note": "DELOAD — ~55% of week 5 loads, 4+ RIR" },
-          { "forType": "raise", "reps": "15-20", "note": "DELOAD — ~55% of week 5 loads, 4+ RIR" },
-          { "forType": "abs", "reps": "15-20", "note": "DELOAD — no supersets, 4+ RIR" }
+          {
+            "forType": "fst7",
+            "remove": true
+          },
+          {
+            "match": "Barbell back squat (rack)",
+            "remove": true
+          },
+          {
+            "forType": "compound",
+            "reps": "12-15",
+            "note": "DELOAD — ~55% of week 5 loads, stop at 4+ RIR, no failure, no rest-pause, no ramp sets"
+          },
+          {
+            "forType": "isolation",
+            "reps": "15-20",
+            "note": "DELOAD — ~55% of week 5 loads, 4+ RIR"
+          },
+          {
+            "forType": "raise",
+            "reps": "15-20",
+            "note": "DELOAD — ~55% of week 5 loads, 4+ RIR"
+          },
+          {
+            "forType": "abs",
+            "reps": "15-20",
+            "note": "DELOAD — no supersets, 4+ RIR"
+          }
         ]
       },
       {
-        "weeks": [7, 8, 9, 10],
-        "label": "Post-deload: squat retired, leg press up",
-        "rules": [
-          { "match": "Barbell back squat (rack)", "remove": true },
-          { "match": "Seated leg press", "sets": 4, "note": "Raised to 4 working sets — replaces the retired back squat" }
-        ]
-      },
-      {
-        "weeks": [2, 4, 8, 10],
+        "weeks": [
+          2,
+          4,
+          8,
+          10
+        ],
         "label": "Even-week FST-7 rotation to rear delts",
         "rules": [
-          { "match": "Standing cable lateral raise", "note": "EVEN WEEK — perform this as REVERSE PEC DECK instead (rear delt rotation)" }
-        ]
-      }
-    ]
-  },
-  {
-    "schemaVersion": 1,
-    "name": "APEX BLOCK B — Rotation (week 7+)",
-    "weeks": 10,
-    "restDays": [5, 6],
-    "days": [
-      {
-        "name": "Quads + Abs",
-        "exercises": [
-          { "name": "Smith squat, narrow stance", "muscle": "Quads", "type": "compound", "sets": 4, "reps": "6-8", "note": "[RP] Block B swap for feet-forward Smith squat. 3 ramp sets first." },
-          { "name": "Seated leg press", "muscle": "Quads", "type": "compound", "sets": 4, "reps": "6-8", "note": "1 ramp set. Feet low and narrow." },
-          { "name": "Leg extension", "muscle": "Quads", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 — never rotated. Terminal." },
-          { "name": "Cable woodchop", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "superset": true, "note": "Superset with weighted crunch." },
-          { "name": "Weighted crunch", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "note": "45s between rounds." }
+          {
+            "match": "Standing cable lateral raise",
+            "note": "EVEN WEEK — perform this as REVERSE PEC DECK instead (rear delt rotation)"
+          }
         ]
       },
       {
-        "name": "Chest + Triceps + Abs",
-        "exercises": [
-          { "name": "Incline DB press", "muscle": "Chest", "type": "compound", "sets": 3, "reps": "6-8", "note": "Block B swap — DB if you ran barbell in Block A. 3 ramp sets." },
-          { "name": "Flat DB press or machine press", "muscle": "Chest", "type": "compound", "sets": 2, "reps": "6-8", "note": "[RP] rest-pause on final set." },
-          { "name": "Weighted dip", "muscle": "Chest", "type": "compound", "sets": 2, "reps": "6-8", "note": "Torso forward, elbows flared slightly." },
-          { "name": "Pec deck or cable crossover", "muscle": "Chest", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 — never rotated." },
-          { "name": "Lying EZ-bar skullcrusher", "muscle": "Triceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Lower behind the forehead." },
-          { "name": "Rope pushdown", "muscle": "Triceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "" },
-          { "name": "Hanging leg raise", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "superset": true, "note": "Superset with cable crunch." },
-          { "name": "Cable crunch", "muscle": "Abs", "type": "abs", "sets": 3, "reps": "12-20", "note": "" }
-        ]
-      },
-      {
-        "name": "Back + Biceps",
-        "exercises": [
-          { "name": "Seated cable row, wide bar", "muscle": "Back", "type": "compound", "sets": 3, "reps": "6-8", "note": "Block B swap for chest-supported incline DB row. 3 ramp sets." },
-          { "name": "Wide-grip pulldown or pull-up", "muscle": "Back", "type": "compound", "sets": 2, "reps": "6-8", "note": "[RP] rest-pause on final set." },
-          { "name": "Single-arm DB row", "muscle": "Back", "type": "compound", "sets": 3, "reps": "6-8", "note": "Block B swap for landmine row." },
-          { "name": "Straight-arm pulldown", "muscle": "Back", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 — never rotated." },
-          { "name": "EZ-bar or barbell curl", "muscle": "Biceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "2 ramp sets first." },
-          { "name": "Cable curl, low pulley", "muscle": "Biceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "Block B swap for incline DB curl." },
-          { "name": "Hammer curl or machine preacher", "muscle": "Biceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "" }
-        ]
-      },
-      {
-        "name": "Shoulders + Traps",
-        "exercises": [
-          { "name": "Smith shoulder press", "muscle": "Delts", "type": "compound", "sets": 3, "reps": "6-8", "note": "[RP] Block B swap for seated DB press. 3 ramp sets." },
-          { "name": "Reverse pec deck", "muscle": "Delts", "type": "raise", "sets": 3, "reps": "15-20", "note": "WEAK POINT — never rotated, never leaves 15-20. Arms move apart, shoulder blades stay still." },
-          { "name": "Cable lateral raise, single arm", "muscle": "Delts", "type": "raise", "sets": 3, "reps": "12-20", "note": "Block B swap for seated lateral raise." },
-          { "name": "Standing cable lateral raise", "muscle": "Delts", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 — never rotated. Odd weeks side delts, even weeks swap to reverse pec deck." },
-          { "name": "Barbell or DB shrug", "muscle": "Traps", "type": "isolation", "sets": 5, "reps": "8-12", "note": "WEAK POINT. Ears-to-shoulders, 2s hold, 3s lowering. No rolling." },
-          { "name": "Behind-the-back barbell shrug or Smith shrug", "muscle": "Traps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "" }
-        ]
-      },
-      {
-        "name": "Hams + Glutes + Arms",
-        "exercises": [
-          { "name": "Seated leg curl", "muscle": "Hamstrings", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Leads the day. 3 ramp sets." },
-          { "name": "Smith RDL", "muscle": "Hamstrings", "type": "compound", "sets": 3, "reps": "8-10", "note": "Block B swap for barbell RDL. STOP AT 2 RIR — never to failure." },
-          { "name": "Smith hip thrust", "muscle": "Glutes", "type": "compound", "sets": 2, "reps": "6-8", "note": "" },
-          { "name": "Lying leg curl", "muscle": "Hamstrings", "type": "fst7", "sets": 7, "reps": "10-15", "fst7": true, "note": "FST-7 — never rotated." },
-          { "name": "DB curl", "muscle": "Biceps", "type": "isolation", "sets": 3, "reps": "8-12", "superset": true, "note": "Superset with overhead rope extension." },
-          { "name": "Overhead rope extension", "muscle": "Triceps", "type": "isolation", "sets": 3, "reps": "8-12", "note": "Long head in the stretch." },
-          { "name": "Rope pushdown or bench dip", "muscle": "Triceps", "type": "isolation", "sets": 2, "reps": "8-12", "note": "" }
+        "weeks": [
+          7,
+          8,
+          9,
+          10
+        ],
+        "label": "Post-deload — squat retired, leg press up, Block B rotation",
+        "rules": [
+          {
+            "match": "Barbell back squat (rack)",
+            "remove": true
+          },
+          {
+            "match": "Seated leg press",
+            "sets": 4,
+            "note": "Raised to 4 working sets — replaces the retired back squat"
+          },
+          {
+            "match": "Smith squat, feet forward",
+            "name": "Smith squat, narrow stance",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Incline barbell or DB press",
+            "name": "Incline DB press",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Chest-supported incline DB row",
+            "name": "Seated cable row, wide bar",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Landmine row",
+            "name": "Single-arm DB row",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Incline DB curl",
+            "name": "Cable curl, low pulley",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Seated DB press or Smith shoulder press",
+            "name": "Smith shoulder press",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Seated lateral raise",
+            "name": "Cable lateral raise, single arm",
+            "note": "Block B rotation (week 7+)"
+          },
+          {
+            "match": "Barbell RDL",
+            "name": "Smith RDL",
+            "note": "Block B rotation (week 7+)"
+          }
         ]
       }
     ]

@@ -71,8 +71,21 @@ in the library. Use this to carry an alternate block or rotation.
 
 **Week overrides** change a base week rather than restating it. Each entry has
 `weeks` (which weeks it applies to) and `rules`. A rule selects exercises by
-`forType`, `forMuscle` or `match` (exact name), then applies `reps`, `sets`,
-`note`, or `remove: true`.
+`forType`, `forMuscle` or `match` (exact name), then applies `name`, `reps`,
+`sets`, `note`, or `remove: true`.
+
+`name` swaps the movement itself, which is how an exercise rotation is
+expressed — one continuous program whose movements change partway, rather than
+a second program that would restart the week counter:
+
+```json
+{ "weeks": [7, 8, 9, 10], "label": "Block B rotation",
+  "rules": [ { "match": "Landmine row", "name": "Single-arm DB row" } ] }
+```
+
+Rules always match the exercise as written in `days`, never the result of an
+earlier rule — so a later rule can still target a renamed movement by its
+original name.
 
 Rules run in order and later rules win, so a broad rule can be followed by a
 specific exception:
@@ -91,6 +104,8 @@ so a deload and a retired exercise can both land on week 6.
 
 - Deload weeks → an override with lower `reps` and `remove` on the FST-7 sets
 - An exercise that retires partway → `remove` in an override for the later weeks
+- A rotation or alternate block → `name` rules over the weeks it applies to,
+  never a second program
 - An exercise whose volume rises later → `sets` in an override
 - Rest-pause, ramp sets, RIR caps, tempo, rest periods → `note`
 - Weekly volume targets, cardio, nutrition, progression rules, checkpoints →
