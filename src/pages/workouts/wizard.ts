@@ -801,9 +801,15 @@ export function deleteSavedProg(pi: number): void {
   const savedProgs = JSON.parse(localStorage.getItem('ll_saved_progs') || '[]');
   const p = savedProgs[pi];
   if (!p) return;
-  ilConfirm(`Delete "${p.name}"?`, () => {
+  ilConfirm(`Delete "${p.name}"? This removes it from your other devices too.`, () => {
     savedProgs.splice(pi, 1);
     localStorage.setItem('ll_saved_progs', JSON.stringify(savedProgs));
+    // Record a tombstone. Libraries merge additively across devices, so a
+    // program simply absent from this list would be restored by the next sync;
+    // only an explicit deletion marker removes it everywhere.
+    const tombs = JSON.parse(localStorage.getItem('ll_deleted_progs') || '[]');
+    if (!tombs.includes(p.name)) tombs.push(p.name);
+    localStorage.setItem('ll_deleted_progs', JSON.stringify(tombs));
     cloudSave();
     if (S.prog && S.prog.name === p.name) {
       S.prog = null;

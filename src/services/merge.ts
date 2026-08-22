@@ -73,3 +73,20 @@ export function shouldTakeRemote(
   if (!firstEverSync) return remoteAt >= localAt;
   return isEmpty(localValue) && !isEmpty(remoteValue);
 }
+
+/**
+ * Union saved-program names that have been deleted. Deletions have to travel
+ * as tombstones because the libraries themselves are merged additively — a
+ * program simply missing from one device's list means "I have not seen it",
+ * not "I removed it", and the two are indistinguishable without this.
+ */
+export function mergeTombstones(local: string[], remote: string[]): string[] {
+  return [...new Set([...(local || []), ...(remote || [])])];
+}
+
+/** Drop any program whose name has been tombstoned. */
+export function applyTombstones<T extends { name?: string }>(progs: T[], deleted: string[]): T[] {
+  if (!deleted || !deleted.length) return progs;
+  const gone = new Set(deleted);
+  return (progs || []).filter(p => !p.name || !gone.has(p.name));
+}

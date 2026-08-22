@@ -8,6 +8,7 @@ export const KEYS = {
   customEx: 'll_custom_ex',
   savedProgs: 'll_saved_progs',
   // Sync bookkeeping
-  syncedAt: 'll_synced_at',
+  syncedAt: 'll_synced_at',      // last SERVER updatedAt we have applied
+  deletedProgs: 'll_deleted_progs',
   deviceId: 'll_device_id',
 };

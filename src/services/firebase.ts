@@ -11,7 +11,7 @@ import { S, wiz, rebuildFST7 } from '../store/state';
 import { EX } from '../data/exercises';
 import { KEYS } from './keys';
 import type { WorkoutLog } from '../types';
-import { mergeWorkouts, mergeSavedProgs, mergeCustomEx, shouldTakeRemote } from './merge';
+import { mergeWorkouts, mergeSavedProgs, mergeCustomEx, mergeTombstones, applyTombstones, isEmpty } from './merge';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAB6ux2qMCxQ_0KdNDs72l3cdFdcVAkDr8",
@@ -58,6 +58,7 @@ function emit(patch: Partial<SyncStatus>): void {
 // ── Internals ──────────────────────────────────────────────────────────────
 let _uid: string | null = null;
 let _ready = false;          // true once the first snapshot has been applied
+let _dirty = false;          // local edits the cloud has not confirmed yet
 let _saveTimer: ReturnType<typeof setTimeout> | null = null;
 let _unsub: (() => void) | null = null;
 let _renders: RenderFns | null = null;
@@ -86,11 +87,16 @@ function pushNow(): void {
     wiz: wiz,
     custom_ex: readLocal(KEYS.customEx, {}),
     saved_progs: readLocal(KEYS.savedProgs, []),
+    deleted_progs: readLocal(KEYS.deletedProgs, []),
     updatedAt: serverTimestamp(),
     writer: deviceId(),
   })
     .then(() => {
-      localStorage.setItem(KEYS.syncedAt, String(Date.now()));
+      // KEYS.syncedAt is deliberately NOT written here. It records the server's
+      // updatedAt, and only a snapshot can tell us what the server actually
+      // stamped. Writing Date.now() here would compare this device's clock
+      // against Google's on the next merge, and a device running even slightly
+      // fast would then reject every update the other device makes.
       emit({ state: 'synced', lastSynced: Date.now(), message: '' });
     })
     .catch((e: unknown) => {
@@ -108,6 +114,7 @@ function pushNow(): void {
 /** Debounced push. Safe to call on every local save. */
 export function cloudSave(): void {
   if (!_uid || !_ready) return;
+  _dirty = true;
   if (_saveTimer) clearTimeout(_saveTimer);
   _saveTimer = setTimeout(pushNow, 800);
 }
@@ -124,58 +131,86 @@ type RemoteDoc = {
   prog?: unknown;
   wiz?: Record<string, unknown>;
   custom_ex?: Record<string, string[]>;
-  saved_progs?: unknown[];
+  saved_progs?: { name?: string }[];
+  deleted_progs?: string[];
   updatedAt?: Timestamp;
   writer?: string;
 };
 
-function applyRemote(d: RemoteDoc, firstEverSync: boolean): void {
-  const remoteAt = d.updatedAt instanceof Timestamp ? d.updatedAt.toMillis() : 0;
-  const localAt = Number(localStorage.getItem(KEYS.syncedAt) || 0);
+/**
+ * Merge a remote document into local state.
+ *
+ * Collections are unioned, always — never "take one side". A program missing
+ * from a device's list means "not seen here", not "deleted", so the two must
+ * not be resolved by picking a winner. Deletion travels separately, as a
+ * tombstone, which is the only thing that removes a saved program.
+ *
+ * Single values (the active program, the wizard draft) cannot be unioned, so
+ * they need a winner. `dirty` — this device holds edits the cloud has not yet
+ * confirmed — decides it. Wall-clock times are never compared: the only clock
+ * in play is Google's, read back from the document itself.
+ *
+ * Returns true when the merged result differs from what the cloud holds, in
+ * which case the caller pushes the merge back so both devices converge.
+ */
+function applyRemote(d: RemoteDoc, dirty: boolean, firstEverSync: boolean): boolean {
+  let changed = false;
 
-  // Workout logs always merge — they are append-only history and must never
-  // be dropped by a device that happened to write last.
-  const merged = mergeWorkouts(S.workouts || [], d.workouts || []);
-  S.workouts = merged;
-  localStorage.setItem(KEYS.workouts, JSON.stringify(merged));
+  // ── Deletion tombstones. Merged first: they gate everything below.
+  const tombs = mergeTombstones(readLocal<string[]>(KEYS.deletedProgs, []), d.deleted_progs || []);
+  if (JSON.stringify(tombs) !== JSON.stringify(d.deleted_progs || [])) changed = true;
+  localStorage.setItem(KEYS.deletedProgs, JSON.stringify(tombs));
 
-  // Collections union on a first sync so nothing authored on either device is
-  // lost when the two are first joined. After that the newer writer wins.
-  if (firstEverSync) {
-    const savedProgs = mergeSavedProgs(readLocal(KEYS.savedProgs, [] as { name?: string }[]), d.saved_progs as { name?: string }[] || []);
-    localStorage.setItem(KEYS.savedProgs, JSON.stringify(savedProgs));
+  // ── Workout logs: union by date, never lost.
+  const logs = mergeWorkouts(S.workouts || [], d.workouts || []);
+  if (logs.length !== (d.workouts || []).length) changed = true;
+  S.workouts = logs;
+  localStorage.setItem(KEYS.workouts, JSON.stringify(logs));
 
-    const customEx = mergeCustomEx(readLocal(KEYS.customEx, {}), d.custom_ex || {});
-    localStorage.setItem(KEYS.customEx, JSON.stringify(customEx));
-    Object.keys(customEx).forEach(mg => {
-      if (EX[mg]) EX[mg] = [...new Set([...EX[mg], ...customEx[mg]])].sort();
-    });
-  } else {
-    if (d.saved_progs !== undefined && remoteAt >= localAt) {
-      localStorage.setItem(KEYS.savedProgs, JSON.stringify(d.saved_progs));
-    }
-    if (d.custom_ex !== undefined && remoteAt >= localAt) {
-      localStorage.setItem(KEYS.customEx, JSON.stringify(d.custom_ex));
-      Object.keys(d.custom_ex).forEach(mg => {
-        if (EX[mg]) EX[mg] = [...new Set([...EX[mg], ...d.custom_ex![mg]])].sort();
-      });
-    }
-  }
+  // ── Saved-program library: union by name, then apply tombstones.
+  // On a same-name clash the more recent edit wins, which is this device's
+  // copy when it is holding unsynced edits and the cloud's otherwise.
+  const localProgs = readLocal<{ name?: string }[]>(KEYS.savedProgs, []);
+  const remoteProgs = d.saved_progs || [];
+  const union = dirty
+    ? mergeSavedProgs(remoteProgs, localProgs)   // later arg wins the clash
+    : mergeSavedProgs(localProgs, remoteProgs);
+  const progs = applyTombstones(union, tombs);
+  if (JSON.stringify(progs) !== JSON.stringify(applyTombstones(remoteProgs, tombs))) changed = true;
+  localStorage.setItem(KEYS.savedProgs, JSON.stringify(progs));
 
-  // The active program and the wizard draft are single values, so they cannot
-  // be unioned. Whatever this device already holds wins on a first sync.
-  if (d.prog !== undefined && shouldTakeRemote(d.prog, S.prog, firstEverSync, remoteAt, localAt)) {
-    S.prog = d.prog as typeof S.prog;
-    localStorage.setItem(KEYS.prog, JSON.stringify(d.prog));
+  // ── Custom exercises: union per muscle group. Nothing deletes these.
+  const customEx = mergeCustomEx(readLocal(KEYS.customEx, {}), d.custom_ex || {});
+  if (JSON.stringify(customEx) !== JSON.stringify(d.custom_ex || {})) changed = true;
+  localStorage.setItem(KEYS.customEx, JSON.stringify(customEx));
+  Object.keys(customEx).forEach(mg => {
+    if (EX[mg]) EX[mg] = [...new Set([...EX[mg], ...customEx[mg]])].sort();
+  });
+
+  // ── Active program: a single value, so one side has to win.
+  // A device joining an account keeps what it is already training rather than
+  // adopting a cloud copy, and an empty cloud never clears a live program.
+  const remoteProg = d.prog ?? null;
+  const keepLocal = dirty || (firstEverSync && !isEmpty(S.prog)) || isEmpty(remoteProg);
+  if (!keepLocal) {
+    S.prog = remoteProg as typeof S.prog;
+    localStorage.setItem(KEYS.prog, JSON.stringify(remoteProg));
     rebuildFST7();
-  }
-  if (d.wiz !== undefined && shouldTakeRemote(d.wiz, readLocal(KEYS.wiz, null), firstEverSync, remoteAt, localAt)) {
-    Object.assign(wiz, d.wiz);
-    localStorage.setItem(KEYS.wiz, JSON.stringify(wiz));
+  } else if (JSON.stringify(S.prog ?? null) !== JSON.stringify(remoteProg)) {
+    changed = true;
   }
 
-  localStorage.setItem(KEYS.syncedAt, String(Math.max(remoteAt, localAt)));
+  // ── Wizard draft: same rule, lower stakes.
+  const remoteWiz = d.wiz;
+  if (remoteWiz && !dirty && !firstEverSync) {
+    Object.assign(wiz, remoteWiz);
+    localStorage.setItem(KEYS.wiz, JSON.stringify(wiz));
+  } else if (remoteWiz && JSON.stringify(wiz) !== JSON.stringify(remoteWiz)) {
+    changed = true;
+  }
+
   redraw();
+  return changed;
 }
 
 function redraw(): void {
@@ -196,34 +231,44 @@ function watch(uid: string): void {
 
   _unsub = onSnapshot(doc(_db, 'users', uid),
     (snap) => {
-      // Our own in-flight write echoing back — nothing new to apply.
+      // Our own write, still in flight — the server has not stamped it yet.
       if (snap.metadata.hasPendingWrites) return;
 
       if (!snap.exists()) {
         // Nothing in the cloud yet: this device seeds the account.
         _ready = true;
-        emit({ state: 'saving' });
         pushNow();
         return;
       }
 
       const d = snap.data() as RemoteDoc;
+      const serverAt = d.updatedAt instanceof Timestamp ? d.updatedAt.toMillis() : 0;
       const wasFirst = first;
       first = false;
 
-      // Ignore echoes of writes this device made.
-      if (!wasFirst && d.writer === deviceId()) {
-        emit({ state: 'synced', lastSynced: Date.now() });
+      // Our own write coming back confirms it landed. Record the server's
+      // timestamp — the only clock this device is allowed to trust — and drop
+      // the dirty flag so the cloud is authoritative again.
+      if (d.writer === deviceId() && !_dirty) {
+        localStorage.setItem(KEYS.syncedAt, String(serverAt));
+        _ready = true;
+        emit({ state: 'synced', lastSynced: Date.now(), message: '' });
         return;
       }
 
-      applyRemote(d, wasFirst && firstEverSync);
+      const changed = applyRemote(d, _dirty, wasFirst && firstEverSync);
+      localStorage.setItem(KEYS.syncedAt, String(serverAt));
       _ready = true;
-      emit({ state: 'synced', lastSynced: Date.now(), message: '' });
 
-      // If the first pull found the cloud missing data we hold locally,
-      // push the merged result straight back up.
-      if (wasFirst && firstEverSync) pushNow();
+      if (changed) {
+        // The merge produced something neither side had. Push it so the other
+        // device converges on the same result; union merges are idempotent, so
+        // this settles rather than ping-ponging.
+        pushNow();
+      } else {
+        _dirty = false;
+        emit({ state: 'synced', lastSynced: Date.now(), message: '' });
+      }
     },
     (e: unknown) => {
       const msg = e instanceof Error ? e.message : String(e);
@@ -262,7 +307,7 @@ export function signInGoogle(): void {
 
 export function signOutUser(): void {
   if (_unsub) { _unsub(); _unsub = null; }
-  _uid = null; _ready = false;
+  _uid = null; _ready = false; _dirty = false;
   signOut(_auth).catch(() => {});
   // Local data is deliberately left in place so the app still works signed out.
   emit({ state: 'signed-out', user: null, lastSynced: null, message: '' });
@@ -285,7 +330,7 @@ export function initSync(renders: RenderFns): void {
 
   onAuthStateChanged(_auth, (user: User | null) => {
     if (!user) {
-      _uid = null; _ready = false;
+      _uid = null; _ready = false; _dirty = false;
       if (_unsub) { _unsub(); _unsub = null; }
       emit({ state: 'signed-out', user: null, message: '' });
       return;

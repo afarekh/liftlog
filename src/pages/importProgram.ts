@@ -73,6 +73,13 @@ function saveToLibrary(r: ImportResult): void {
   const idx = saved.findIndex((x: { name?: string }) => x.name === p.name);
   if (idx >= 0) saved[idx] = entry; else saved.push(entry);
   localStorage.setItem(KEYS.savedProgs, JSON.stringify(saved));
+
+  // Importing a name that was deleted before revives it, so its tombstone has
+  // to go — otherwise the next sync would quietly delete it again.
+  const tombs = JSON.parse(localStorage.getItem(KEYS.deletedProgs) || '[]') as string[];
+  if (tombs.includes(p.name)) {
+    localStorage.setItem(KEYS.deletedProgs, JSON.stringify(tombs.filter(t => t !== p.name)));
+  }
 }
 
 function doImport(): void {
