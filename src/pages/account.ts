@@ -1,4 +1,4 @@
-import { getSyncStatus, onSyncStatus, signInGoogle, signOutUser, cloudSaveNow, type SyncStatus } from '../services/firebase';
+import { getSyncStatus, onSyncStatus, signInGoogle, signOutUser, syncNow, type SyncStatus } from '../services/firebase';
 import { ilToast, ilConfirm } from '../utils/ui';
 
 const $ = (id: string) => document.getElementById(id);
@@ -88,7 +88,7 @@ export function initAccount(): void {
   $('acctCloseBtn')?.addEventListener('click', closeAccount);
 
   $('acctSyncBtn')?.addEventListener('click', () => {
-    cloudSaveNow();
+    syncNow();
     ilToast('Syncing…', 'info');
   });
 

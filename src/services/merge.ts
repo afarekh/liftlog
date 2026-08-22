@@ -90,3 +90,57 @@ export function applyTombstones<T extends { name?: string }>(progs: T[], deleted
   const gone = new Set(deleted);
   return (progs || []).filter(p => !p.name || !gone.has(p.name));
 }
+
+/**
+ * Recursively sort object keys so two values can be compared by meaning rather
+ * than by how they happen to be written. Firestore does not preserve map key
+ * order, so a document read back is rarely textually identical to the one that
+ * was written even when nothing about it has changed.
+ */
+function canonical(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(canonical);
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(o).sort()) {
+      if (o[k] !== undefined) out[k] = canonical(o[k]);
+    }
+    return out;
+  }
+  return v;
+}
+
+/** Deep equality that ignores key order and null/undefined spelling. */
+export function sameData(a: unknown, b: unknown): boolean {
+  const norm = (v: unknown) => (v === undefined ? null : v);
+  return JSON.stringify(canonical(norm(a))) === JSON.stringify(canonical(norm(b)));
+}
+
+/** Order-independent comparison of two program lists. */
+export function sameProgs(a: { name?: string }[], b: { name?: string }[]): boolean {
+  const key = (p: { name?: string }) => p.name || '';
+  const sort = (l: { name?: string }[]) => [...(l || [])].sort((x, y) => key(x).localeCompare(key(y)));
+  return sameData(sort(a), sort(b));
+}
+
+/** Order-independent comparison of two string lists. */
+export function sameList(a: string[], b: string[]): boolean {
+  return sameData([...(a || [])].sort(), [...(b || [])].sort());
+}
+
+/**
+ * Compare custom-exercise maps ignoring the order of names within each muscle
+ * group. The merge sorts them; a copy written by another client may not be
+ * sorted, and treating that purely representational difference as a change
+ * makes the two devices rewrite the same data at each other indefinitely.
+ */
+export function sameCustomEx(
+  a: Record<string, string[]>, b: Record<string, string[]>
+): boolean {
+  const norm = (m: Record<string, string[]>) => {
+    const out: Record<string, string[]> = {};
+    for (const k of Object.keys(m || {}).sort()) out[k] = [...new Set(m[k] || [])].sort();
+    return out;
+  };
+  return sameData(norm(a), norm(b));
+}
