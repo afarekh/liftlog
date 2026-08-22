@@ -2,13 +2,12 @@ import { parseBundle, type BundleResult, type ImportResult } from '../services/p
 import { S, FST7 } from '../store/state';
 import { saveS, KEYS } from '../services/storage';
 import { cloudSave } from '../services/firebase';
-import { ilToast, ilDatePick } from '../utils/ui';
-import { todayYMD } from '../utils/date';
+import { ilToast, ilConfirm } from '../utils/ui';
 
 const $ = (id: string) => document.getElementById(id);
 
 let _parsed: BundleResult | null = null;
-let _startDate = todayYMD();
+const _startDate = '';
 
 function esc(s: string): string {
   return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -36,18 +35,18 @@ function renderPreview(): void {
   }
 
   if (_parsed.ok) {
-    _parsed.programs.forEach((r: ImportResult, i) => {
+    _parsed.programs.forEach((r: ImportResult) => {
       const p = r.program!, s = r.summary!;
       const vol = Object.entries(s.weeklySets).sort((a, b) => b[1] - a[1])
         .map(([m, n]) => `<span class="imp-chip">${esc(m)} · ${n}</span>`).join('');
       h += `<div class="imp-block imp-good">
-        <div class="imp-block-t">${esc(p.name)}${i === 0 ? ' <span class="imp-tag">activates</span>' : ' <span class="imp-tag imp-tag-q">to library</span>'}</div>
+        <div class="imp-block-t">${esc(p.name)} <span class="imp-tag">to library</span></div>
         <div class="imp-line">${p.weeks} weeks · ${s.days} days/week · ${s.exercises} exercises</div>
         ${s.overrideWeeks.length ? `<div class="imp-line">Week overrides: ${s.overrideWeeks.join(', ')}</div>` : ''}
         <div class="imp-chips">${vol}</div>
       </div>`;
     });
-    h += `<div class="imp-note">Starts ${esc(_startDate)} — change it on the next screen.</div>`;
+    h += `<div class="imp-note">Saved to your library — review it, then activate when you're ready.</div>`;
   }
 
   box.innerHTML = h;
@@ -79,41 +78,22 @@ function saveToLibrary(r: ImportResult): void {
 function doImport(): void {
   if (!_parsed || !_parsed.ok || !_parsed.programs.length) return;
 
-  ilDatePick(ds => {
-    _startDate = ds;
+  _parsed.programs.forEach(saveToLibrary);
+  cloudSave();
+  closeImport();
 
-    // Everything lands in the library; the first also becomes active.
-    _parsed!.programs.forEach(r => { r.program!.startDate = ds; saveToLibrary(r); });
+  const w = window as unknown as {
+    renderWorkouts: () => void; switchWTab: (n: number) => void; goPage: (n: number) => void;
+  };
+  w.renderWorkouts();
+  w.goPage(2);
+  w.switchWTab(1);
 
-    const main = _parsed!.programs[0];
-    const p = main.program!;
-    S.prog = p;
-
-    FST7.length = 0;
-    (p.dayPrograms || []).forEach((d, i) => {
-      FST7.push({
-        day: d.name || 'Day ' + (i + 1),
-        name: d.name || 'Day ' + (i + 1),
-        muscles: [...new Set(d.exercises.map(e => e.muscle))],
-        exercises: d.exercises.map(e => ({ ...e })),
-      });
-    });
-
-    saveS();
-    cloudSave();
-    closeImport();
-
-    const extra = _parsed!.programs.length - 1;
-    (window as unknown as { renderHome: () => void }).renderHome();
-    (window as unknown as { renderCal: () => void }).renderCal();
-    (window as unknown as { renderWorkouts: () => void }).renderWorkouts();
-    (window as unknown as { renderStats: () => void }).renderStats();
-    (window as unknown as { goPage: (n: number) => void }).goPage(0);
-
-    setTimeout(() => ilToast(
-      extra > 0 ? `"${p.name}" activated · ${extra} more saved` : `"${p.name}" activated!`,
-      'success'), 200);
-  }, _startDate);
+  const n = _parsed.programs.length;
+  const first = _parsed.programs[0].program!.name;
+  setTimeout(() => ilToast(
+    n > 1 ? `${n} programs imported — activate one when ready` : `"${first}" imported — activate it when ready`,
+    'success'), 150);
 }
 
 export function openImport(): void {
@@ -147,4 +127,20 @@ export function initImport(): void {
 
   const bg = $('ilImport');
   bg?.addEventListener('click', e => { if (e.target === bg) closeImport(); });
+}
+
+/**
+ * Drop an active program that has no exercises attached. Its library copy, its
+ * logged workouts and everything else are left alone — only the broken active
+ * pointer goes.
+ */
+export function clearEmptyProgram(): void {
+  ilConfirm('Clear this empty program? Your workout history and saved programs are kept.', () => {
+    S.prog = null;
+    FST7.length = 0;
+    saveS();
+    const w = window as unknown as { renderHome: () => void; renderCal: () => void; renderStats: () => void };
+    w.renderHome(); w.renderCal(); w.renderStats();
+    ilToast('Cleared', 'success');
+  }, 'Clear', true);
 }

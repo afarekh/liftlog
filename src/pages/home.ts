@@ -1,5 +1,5 @@
 import { S, homeSelDate, homeCalExpanded, homeCalMonth, homeWeekOffset, homeProgramExpanded,
-  setHomeSelDate, setHomeCalExpanded, setHomeCalMonth, setHomeWeekOffset, setHomeProgramExpanded } from '../store/state';
+  setHomeSelDate, setHomeCalExpanded, setHomeCalMonth, setHomeWeekOffset, setHomeProgramExpanded, progIsEmpty } from '../store/state';
 import { fmt, ymd, parseYMD, today, todayYMD, DOW_SHORT, monthName } from '../utils/date';
 import { isInProgRange, getDayIdx, getLogged } from '../utils/helpers';
 import { FST7 } from '../store/state';
@@ -77,6 +77,20 @@ export function renderHomeProgram(): void {
     pb.innerHTML = `<div class="pbanner" style="text-align:center;padding:20px">
       <div class="p-name" style="font-size:16px;margin-bottom:8px">No Active Program</div>
       <button class="start-btn" style="height:44px;font-size:14px" onclick="goPage(2)">Set Up Program</button>
+    </div>`;
+    return;
+  }
+
+  // An active program with no exercises can otherwise render as a normal
+  // banner — a name, a week counter and a session total — while there is
+  // nothing to train behind it. Say so plainly instead.
+  if (progIsEmpty()) {
+    pb.innerHTML = `<div class="pbanner" style="text-align:center;padding:20px">
+      <div class="p-name" style="font-size:16px;margin-bottom:6px">${S.prog.name}</div>
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.5">
+        This program has no exercises in it.<br>Import or build it again to start training.
+      </div>
+      <button class="start-btn" style="height:44px;font-size:14px" onclick="clearEmptyProgram()">Clear It</button>
     </div>`;
     return;
   }

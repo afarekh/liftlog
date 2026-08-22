@@ -1,5 +1,5 @@
 import { EX_DB } from '../data/exercises';
-import type { AppState, WizState, Session, FST7Day } from '../types';
+import type { AppState, WizState, Session, FST7Day, DayProgram, Program } from '../types';
 
 export let S: AppState = {
   workouts: [],
@@ -82,9 +82,33 @@ export function setDragSrc(v: number | null) { dragSrc = v; }
 
 // Rebuild the active-program day data (FST7) from S.prog. Called after loading
 // from localStorage and after pulling a program down from the cloud.
+//
+// A program can end up active with no exercises attached — an older importer
+// wrote a name, a duration and a schedule but no dayPrograms, which renders as
+// a program on the home screen that has nothing to train. Where the library
+// still holds a full copy under the same name, recover from it rather than
+// leaving the app in that half-state.
 export function rebuildFST7(): void {
-  if (!(S.prog && S.prog.isCustom && S.prog.dayPrograms && S.prog.dayPrograms.length)) return;
+  if (!S.prog) { FST7.length = 0; return; }
+
+  if (!(S.prog.dayPrograms && S.prog.dayPrograms.length)) {
+    try {
+      const saved = JSON.parse(localStorage.getItem('ll_saved_progs') || '[]') as Array<{
+        name?: string; dayPrograms?: DayProgram[]; schedule?: Record<number, number>;
+        weekOverrides?: Program['weekOverrides'];
+      }>;
+      const match = saved.find(p => p.name === S.prog!.name && p.dayPrograms && p.dayPrograms.length);
+      if (match) {
+        S.prog.dayPrograms = match.dayPrograms;
+        S.prog.isCustom = true;
+        if (!S.prog.weekOverrides) S.prog.weekOverrides = match.weekOverrides || {};
+        if (!S.prog.schedule || !Object.keys(S.prog.schedule).length) S.prog.schedule = match.schedule || {};
+      }
+    } catch (_) {}
+  }
+
   FST7.length = 0;
+  if (!(S.prog.dayPrograms && S.prog.dayPrograms.length)) return;
   S.prog.dayPrograms.forEach((d, i) => {
     FST7.push({
       day: d.name || 'Day ' + (i + 1),
@@ -93,4 +117,9 @@ export function rebuildFST7(): void {
       exercises: d.exercises.map(e => ({ ...e })),
     });
   });
+}
+
+/** True when a program is active but has no exercises to train. */
+export function progIsEmpty(): boolean {
+  return !!S.prog && !(S.prog.dayPrograms && S.prog.dayPrograms.length);
 }

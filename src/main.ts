@@ -4,7 +4,7 @@ import { ilToast, ilConfirm, ilDatePick } from './utils/ui';
 import { loadS } from './services/storage';
 import { initSync } from './services/firebase';
 import { initAccount, openAccount, closeAccount } from './pages/account';
-import { initImport, openImport, closeImport } from './pages/importProgram';
+import { initImport, openImport, closeImport, clearEmptyProgram } from './pages/importProgram';
 import { registerRenderers, goPage } from './nav/router';
 import { renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram, selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard, toggleTodayCardExes } from './pages/home';
 import { renderCal, selectDay, renderCalDet, toggleCalExp, showDayOpts, confirmAct, initCalendarDelegation } from './pages/calendar';
@@ -125,7 +125,7 @@ Object.assign(window, {
   openAccount, closeAccount,
 
   // Program import
-  openImport, closeImport,
+  openImport, closeImport, clearEmptyProgram,
 
   // App
   exitApp,
