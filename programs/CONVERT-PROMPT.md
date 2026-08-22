@@ -72,7 +72,8 @@ in the library. Use this to carry an alternate block or rotation.
 **Week overrides** change a base week rather than restating it. Each entry has
 `weeks` (which weeks it applies to) and `rules`. A rule selects exercises by
 `forType`, `forMuscle` or `match` (exact name), then applies `name`, `reps`,
-`sets`, `note`, or `remove: true`.
+`sets`, `note` (appended), `noteReplace` (replaces), `superset`, or
+`remove: true`.
 
 `name` swaps the movement itself, which is how an exercise rotation is
 expressed — one continuous program whose movements change partway, rather than
@@ -106,6 +107,12 @@ so a deload and a retired exercise can both land on week 6.
 - An exercise that retires partway → `remove` in an override for the later weeks
 - A rotation or alternate block → `name` rules over the weeks it applies to,
   never a second program
+- An exercise that alternates by week parity → a `name` rule on the even (or
+  odd) weeks. Give the swapped-in movement a distinct name if the same
+  movement already appears elsewhere that day, since previous-session lookup
+  matches on the exercise name
+- A deload whose cues differ (no ramp sets, no rest-pause, supersets run
+  straight) → `noteReplace` and `superset: false`, not just a rep change
 - An exercise whose volume rises later → `sets` in an override
 - Rest-pause, ramp sets, RIR caps, tempo, rest periods → `note`
 - Weekly volume targets, cardio, nutrition, progression rules, checkpoints →

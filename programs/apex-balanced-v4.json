@@ -354,22 +354,23 @@
           {
             "forType": "compound",
             "reps": "12-15",
-            "note": "DELOAD — ~55% of week 5 loads, stop at 4+ RIR, no failure, no rest-pause, no ramp sets"
+            "noteReplace": "DELOAD WEEK — ~55% of week 5 loads. No failure, no rest-pause, no ramp sets. Every set stops at 4+ RIR."
           },
           {
             "forType": "isolation",
             "reps": "15-20",
-            "note": "DELOAD — ~55% of week 5 loads, 4+ RIR"
+            "noteReplace": "DELOAD WEEK — ~55% of week 5 loads. No failure, no rest-pause, no ramp sets. Every set stops at 4+ RIR."
           },
           {
             "forType": "raise",
             "reps": "15-20",
-            "note": "DELOAD — ~55% of week 5 loads, 4+ RIR"
+            "noteReplace": "DELOAD WEEK — ~55% of week 5 loads. No failure, no rest-pause, no ramp sets. Every set stops at 4+ RIR."
           },
           {
             "forType": "abs",
             "reps": "15-20",
-            "note": "DELOAD — no supersets, 4+ RIR"
+            "superset": false,
+            "noteReplace": "DELOAD WEEK — no supersets, 4+ RIR."
           }
         ]
       },
@@ -384,7 +385,8 @@
         "rules": [
           {
             "match": "Standing cable lateral raise",
-            "note": "EVEN WEEK — perform this as REVERSE PEC DECK instead (rear delt rotation)"
+            "name": "Reverse pec deck (FST-7)",
+            "noteReplace": "FST-7 finisher — EVEN WEEK rear delt rotation. 30-45s rest, load fixed across all 7. Arms move apart, shoulder blades stay still."
           }
         ]
       },
@@ -409,42 +411,42 @@
           {
             "match": "Smith squat, feet forward",
             "name": "Smith squat, narrow stance",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Incline barbell or DB press",
             "name": "Incline DB press",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Chest-supported incline DB row",
             "name": "Seated cable row, wide bar",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Landmine row",
             "name": "Single-arm DB row",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Incline DB curl",
             "name": "Cable curl, low pulley",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Seated DB press or Smith shoulder press",
             "name": "Smith shoulder press",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Seated lateral raise",
             "name": "Cable lateral raise, single arm",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           },
           {
             "match": "Barbell RDL",
             "name": "Smith RDL",
-            "note": "Block B rotation (week 7+)"
+            "note": "Block B rotation"
           }
         ]
       }

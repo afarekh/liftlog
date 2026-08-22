@@ -26,7 +26,9 @@ export interface ImportOverrideRule {
   name?: string;                // replaces the movement (an exercise rotation)
   reps?: string;
   sets?: number;
-  note?: string;
+  note?: string;                // appended to the existing note
+  noteReplace?: string;         // replaces it outright, for a week whose cues differ
+  superset?: boolean;           // re-link or unlink from the next exercise
   remove?: boolean;
 }
 export interface ImportOverride { weeks: number[]; label?: string; rules: ImportOverrideRule[]; }
@@ -98,6 +100,8 @@ function applyRules(day: ImportDay, rules: ImportOverrideRule[]): ExerciseEntry[
       if (r.reps !== undefined) patched.reps = r.reps;
       if (r.sets !== undefined) patched.sets = r.sets;
       if (r.note !== undefined) patched.note = patched.note ? patched.note + ' — ' + r.note : r.note;
+      if (r.noteReplace !== undefined) patched.note = r.noteReplace;
+      if (r.superset !== undefined) patched.superset = r.superset;
     }
     out.push(toEntry(patched));
   }
