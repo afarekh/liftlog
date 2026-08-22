@@ -1,14 +1,9 @@
-import { S, wiz, FST7 } from '../store/state';
+import { S, wiz, rebuildFST7 } from '../store/state';
 import { EX } from '../data/exercises';
+import { KEYS } from './keys';
+import { cloudSave } from './firebase';
 
-export const KEYS = {
-  workouts: 'll_w',
-  prog: 'll_p',
-  library: 'll_lib',
-  wiz: 'll_wiz',
-  customEx: 'll_custom_ex',
-  savedProgs: 'll_saved_progs',
-};
+export { KEYS };
 
 export function saveS(): void {
   try {
@@ -17,6 +12,10 @@ export function saveS(): void {
     localStorage.setItem(KEYS.library, JSON.stringify(S.library));
     localStorage.setItem(KEYS.wiz, JSON.stringify(wiz));
   } catch (e) {}
+  // Every local save mirrors to the cloud. cloudSave() is debounced and is a
+  // no-op until sign-in and the first pull have completed, so this cannot
+  // clobber newer data from another device.
+  cloudSave();
 }
 
 export function loadS(): void {
@@ -40,16 +39,6 @@ export function loadS(): void {
     }
 
     // Restore FST7 from active custom program
-    if (S.prog && S.prog.isCustom && S.prog.dayPrograms && S.prog.dayPrograms.length) {
-      FST7.length = 0;
-      S.prog.dayPrograms.forEach((d, i) => {
-        FST7.push({
-          day: d.name || 'Day ' + (i + 1),
-          name: d.name || 'Day ' + (i + 1),
-          muscles: [...new Set(d.exercises.map(e => e.muscle))],
-          exercises: d.exercises.map(e => ({ ...e })),
-        });
-      });
-    }
+    rebuildFST7();
   } catch (e) {}
 }

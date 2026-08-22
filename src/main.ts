@@ -2,7 +2,8 @@ import './styles/main.css';
 
 import { ilToast, ilConfirm, ilDatePick } from './utils/ui';
 import { loadS } from './services/storage';
-import { firebaseSync } from './services/firebase';
+import { initSync } from './services/firebase';
+import { initAccount, openAccount, closeAccount } from './pages/account';
 import { registerRenderers, goPage } from './nav/router';
 import { renderHome, homeCalToggle, homeWeekNav, homeWeekReset, toggleHomeProgram, selectHomeDay, homeCalNavMonth, renderHomeProgram, renderHomeCalStrip, renderHomeTodayCard, toggleTodayCardExes } from './pages/home';
 import { renderCal, selectDay, renderCalDet, toggleCalExp, showDayOpts, confirmAct, initCalendarDelegation } from './pages/calendar';
@@ -47,6 +48,7 @@ function init(): void {
 
   initWizardHandlers();
   initCalendarDelegation();
+  initAccount();
 
   // Buttons that have no onclick attribute and need event listeners
   document.getElementById('spDoneBtn')?.addEventListener('click', completeWorkout);
@@ -57,7 +59,7 @@ function init(): void {
   document.getElementById('smClose')?.addEventListener('click', closeSM);
   document.getElementById('aemClose')?.addEventListener('click', closeAEM);
 
-  firebaseSync({
+  initSync({
     renderHome,
     renderCal,
     renderWorkouts,
@@ -116,6 +118,9 @@ Object.assign(window, {
 
   // UI utilities
   ilToast, ilConfirm, ilDatePick,
+
+  // Account & sync
+  openAccount, closeAccount,
 
   // App
   exitApp,

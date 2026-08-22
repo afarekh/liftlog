@@ -79,3 +79,18 @@ export function patchWiz(patch: Partial<WizState>) { Object.assign(wiz, patch); 
 export function setProgMG(v: string) { progMG = v; }
 export function setProgExes(v: string[]) { progExes = v; }
 export function setDragSrc(v: number | null) { dragSrc = v; }
+
+// Rebuild the active-program day data (FST7) from S.prog. Called after loading
+// from localStorage and after pulling a program down from the cloud.
+export function rebuildFST7(): void {
+  if (!(S.prog && S.prog.isCustom && S.prog.dayPrograms && S.prog.dayPrograms.length)) return;
+  FST7.length = 0;
+  S.prog.dayPrograms.forEach((d, i) => {
+    FST7.push({
+      day: d.name || 'Day ' + (i + 1),
+      name: d.name || 'Day ' + (i + 1),
+      muscles: [...new Set(d.exercises.map(e => e.muscle))],
+      exercises: d.exercises.map(e => ({ ...e })),
+    });
+  });
+}
