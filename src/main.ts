@@ -3,6 +3,7 @@ import './styles/main.css';
 import { ilToast, ilConfirm, ilDatePick } from './utils/ui';
 import { loadS } from './services/storage';
 import { initSync } from './services/firebase';
+import { ensureFresh } from './services/freshness';
 import { initAccount, openAccount, closeAccount } from './pages/account';
 import { initImport, openImport, closeImport, clearEmptyProgram } from './pages/importProgram';
 import { registerRenderers, goPage } from './nav/router';
@@ -132,3 +133,11 @@ Object.assign(window, {
 });
 
 document.addEventListener('DOMContentLoaded', init);
+
+// Check for a stale service worker on boot, and again whenever the app is
+// brought back to the foreground — which is how an installed PWA is normally
+// resumed rather than loaded.
+void ensureFresh();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') void ensureFresh();
+});
