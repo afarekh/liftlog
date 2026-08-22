@@ -81,6 +81,9 @@ export function closeAccount(): void {
 export function initAccount(): void {
   onSyncStatus(paint);
 
+  const build = $('acctBuild');
+  if (build) build.textContent = 'Build ' + __BUILD__;
+
   $('acctSignInBtn')?.addEventListener('click', () => signInGoogle());
   $('acctCloseBtn')?.addEventListener('click', closeAccount);
 

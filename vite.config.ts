@@ -3,6 +3,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: '/',
+  // Surfaced in the sync sheet so the running build is always identifiable —
+  // a stale service worker is otherwise invisible from inside the app.
+  define: {
+    __BUILD__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')),
+  },
   build: {
     outDir: 'dist',
   },
